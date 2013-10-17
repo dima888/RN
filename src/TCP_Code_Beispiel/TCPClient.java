@@ -19,7 +19,7 @@ public class TCPClient {
 
 	private Socket clientSocket; // TCP-Standard-Socketklasse
 
-	private DataOutputStream outToServer; // Ausgabestream zum Server
+	private DataOutputStream outToServer; //Ausgabestream zum Server
 	private BufferedReader inFromServer; // Eingabestream vom Server
 
 	private boolean serviceRequested = true; // Client beenden?
@@ -37,8 +37,7 @@ public class TCPClient {
 
 			/* Socket-Basisstreams durch spezielle Streams filtern */
 			outToServer = new DataOutputStream(clientSocket.getOutputStream());
-			inFromServer = new BufferedReader(new InputStreamReader(
-					clientSocket.getInputStream()));
+			inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
 			/* Konsolenstream (Standardeingabe) initialisieren */
 			inFromUser = new Scanner(System.in);
