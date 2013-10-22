@@ -31,7 +31,7 @@ public class TCPClient {
 	 * am anderen Ende wieder heraus geholt werden
 	 * Streams sind immer "unidirektional", soll heißen, sie sind nur für eine Richtung ausgelegt
 	 */
-	private DataOutputStream outToServer; //Ausgabestream zum Server
+	private DataOutputStream outToServer; //Ausgabestream zum Server 
 	private BufferedReader inFromServer; // Eingabestream vom Server
 
 	private boolean serviceRequested = true; // Client läuft solange true
