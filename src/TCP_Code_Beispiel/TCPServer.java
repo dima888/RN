@@ -14,6 +14,7 @@ import java.io.*;
 import java.net.*;
 
 public class TCPServer {
+	
 	/* Server, der Verbindungsanfragen entgegennimmt */
 	public static final int SERVER_PORT = 6789;
 

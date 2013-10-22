@@ -15,25 +15,37 @@ import java.net.*;
 import java.util.Scanner;
 
 public class TCPClient {
+	
+	/* Man benötigt den ServerPort und die ServerIP um sich als Client mit einem Server zu verbinden
+	 * ANALOGIE: Die ServerIP kann man sich wie eine Hausnummer vorstellen in einem Gebäude
+	 * 			 und den ServerPort wie eine Zimmernummer in einem Gebäude
+	 */
 	public static final int SERVER_PORT = 6789;
+	public static final String SERVER_IP = "192.168.178.61";
 
+	//Eine Socket ist ein Verbindungspunkt
 	private Socket clientSocket; // TCP-Standard-Socketklasse
 
+	/* Ein Stream ist ein Puffer
+	 * An einem Ende wird er mit Datenbefüllt, die Daten verweilen im Puffer, bis sie
+	 * am anderen Ende wieder heraus geholt werden
+	 * Streams sind immer "unidirektional", soll heißen, sie sind nur für eine Richtung ausgelegt
+	 */
 	private DataOutputStream outToServer; //Ausgabestream zum Server
 	private BufferedReader inFromServer; // Eingabestream vom Server
 
-	private boolean serviceRequested = true; // Client beenden?
+	private boolean serviceRequested = true; // Client läuft solange true
 
 	public void startJob() {
 		/* Client starten. Ende, wenn quit eingegeben wurde */
-		Scanner inFromUser;
+		Scanner inFromUser; //Zum Auslesen der Benutzereingaben
 		String sentence; // vom User übergebener String
 		String modifiedSentence; // vom Server modifizierter String
 
 		/* Ab Java 7: try-with-resources mit automat. close benutzen! */
 		try {
 			/* Socket erzeugen --> Verbindungsaufbau mit dem Server */
-			clientSocket = new Socket("localhost", SERVER_PORT);
+			clientSocket = new Socket(SERVER_IP, SERVER_PORT);
 
 			/* Socket-Basisstreams durch spezielle Streams filtern */
 			outToServer = new DataOutputStream(clientSocket.getOutputStream());
