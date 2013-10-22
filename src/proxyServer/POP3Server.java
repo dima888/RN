@@ -1,4 +1,4 @@
-package Praktikumsaufgabe1;
+package proxyServer;
 
 public class POP3Server {
 	/* Server, der Verbindungsanfragen entgegennimmt */

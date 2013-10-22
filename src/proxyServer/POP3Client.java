@@ -1,4 +1,4 @@
-package Praktikumsaufgabe1;
+package proxyServer;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -28,27 +28,5 @@ public class POP3Client {
 	
 	private boolean serviceRequested = true; // Client läuft solange true
 	
-	/**
-	 * Startet den Clienten
-	 */
-	public void startJob() {
-		//TODO
-	}
 	
-	/**
-	 * Ermöglicht das senden von Anfragen den Server
-	 * @param String request - Die Anfrage, die an den Server gestellt werden soll
-	 */
-	public void writeToServer(String request) {
-		//TODO
-	}
-	
-	/**
-	 * Ermöglicht das auslesen der Antwort vom Server
-	 * @return String - die Antwort des Servers
-	 */
-	public String readFromServer() {
-		//TODO
-		return null;
-	}
 }
