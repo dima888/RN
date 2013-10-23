@@ -1,5 +1,5 @@
 package proxyServer;
 
 class Verwaltung {
-
+	
 }

@@ -2,33 +2,26 @@ package proxyServer;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Path;
 
 class POP3_Client {
 	
-	/* 
-	 * Man benötigt den ServerPort und die ServerIP um sich als Client mit einem Server zu verbinden
-	 * ANALOGIE: Die ServerIP kann man sich wie eine Hausnummer vorstellen in einem Gebäude
-	 * 			 und den ServerPort wie eine Zimmernummer in einem Gebäude
-	 */
-	private static final int SERVER_PORT = 11_000; //ZimmerNummer
-	private static final String SERVER_IP = "192.168.178.61"; //HausNummer
+	/* Server, der Verbindungsanfragen entgegennimmt */
+	private final String IP;
+	private final int SERVER_PORT; // Auf diesen Port wird "gelauscht"
+	private Path path;
+	private static int count = 0;
 	
-	//Eine Socket ist ein Verbindungspunkt
-	private Socket clientSocket; // TCP-Standard-Socketklasse
+	POP3_Client(final String IP, final int SERVER_PORT) {
+		this.IP = IP;
+		this.SERVER_PORT = SERVER_PORT;
+	}
 	
-	/* 
-	 * Ein Stream ist ein Puffer
-	 * An einem Ende wird er mit Datenbefüllt, die Daten verweilen im Puffer, bis sie
-	 * am anderen Ende wieder heraus geholt werden
-	 * Streams sind immer "unidirektional", soll heißen, sie sind nur für eine Richtung ausgelegt
-	 */
-	private DataOutputStream outToServer; //Ausgabestream zum Server
-	private BufferedReader inFromServer; // Eingabestream vom Server
-	
-	private boolean serviceRequested = true; // Client läuft solange true
-	
-	void startJob() {
-		
+	// TODO
+	void startePOP3_Client() {
+		Socket connectionSocket; // VerbindungsSocket mit Client
 	}
 }

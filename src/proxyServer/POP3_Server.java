@@ -10,7 +10,7 @@ import java.nio.file.Path;
 class POP3_Server {
 	
 	/* Server, der Verbindungsanfragen entgegennimmt */
-	public static final int SERVER_PORT = 11_000; // Auf diesen Port wird "gelauscht"
+	private static final int SERVER_PORT = 11_000; // Auf diesen Port wird "gelauscht"
 	private Path path;
 	private static int count = 0;
 	
@@ -38,7 +38,7 @@ class POP3_Server {
 				connectionSocket = welcomeSocket.accept();
 				
 				// Neuen Arbeits-Thread erzeugen und starten mit übergebenen Socket
-				(new POP3ServerThread(connectionSocket, path)).start();
+				(new POP3_Server_Thread(connectionSocket, path)).start();
 			}
 			
 		} catch (IOException e) {
@@ -46,7 +46,7 @@ class POP3_Server {
 		}
 	}
 	
-	private class POP3ServerThread extends Thread{
+	private class POP3_Server_Thread extends Thread{
 		
 		private int name;
 		private RFC_1939_Parser parser = new RFC_1939_Parser();
@@ -59,7 +59,7 @@ class POP3_Server {
 		
 		boolean serviceRequested = true; //Server läuft so lange true ist
 		
-		POP3ServerThread(Socket socket, Path path) {
+		POP3_Server_Thread(Socket socket, Path path) {
 			this.socket = socket;
 			this.path = path;
 			this.name = count;
