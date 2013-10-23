@@ -4,15 +4,15 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.net.Socket;
 
-public class POP3Client {
+class POP3_Client {
 	
 	/* 
 	 * Man benötigt den ServerPort und die ServerIP um sich als Client mit einem Server zu verbinden
 	 * ANALOGIE: Die ServerIP kann man sich wie eine Hausnummer vorstellen in einem Gebäude
 	 * 			 und den ServerPort wie eine Zimmernummer in einem Gebäude
 	 */
-	public static final int SERVER_PORT = 11_000; //ZimmerNummer
-	public static final String SERVER_IP = "192.168.178.61"; //HausNummer
+	private static final int SERVER_PORT = 11_000; //ZimmerNummer
+	private static final String SERVER_IP = "192.168.178.61"; //HausNummer
 	
 	//Eine Socket ist ein Verbindungspunkt
 	private Socket clientSocket; // TCP-Standard-Socketklasse
@@ -28,5 +28,7 @@ public class POP3Client {
 	
 	private boolean serviceRequested = true; // Client läuft solange true
 	
-	
+	void startJob() {
+		
+	}
 }

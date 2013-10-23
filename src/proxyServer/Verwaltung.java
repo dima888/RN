@@ -1,5 +1,5 @@
 package proxyServer;
 
-public class Verwaltung {
+class Verwaltung {
 
 }
