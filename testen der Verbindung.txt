@@ -1,0 +1,8 @@
+1: telnet pop.gmx.de 110
+
+2: user <USERNAME>
+
+3: pass <PASSWORT>
+
+
+case-insensitive.
