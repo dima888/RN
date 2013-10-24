@@ -1,5 +1,0 @@
-package proxyServer;
-
-class Verwaltung {
-	
-}

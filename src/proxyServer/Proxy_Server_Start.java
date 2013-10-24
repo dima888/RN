@@ -18,8 +18,8 @@ public class Proxy_Server_Start {
 	 * @param IP - IP des Servers
 	 * @param SERVER_PORT - Port des Servers
 	 */
-	public void starteClient(final String IP, final int SERVER_PORT) {
-		POP3_Client client = new POP3_Client(IP, SERVER_PORT);
+	public void starteClient(String clientName) {
+		POP3_Client client = new POP3_Client(clientName);
 	}
 	
 	public void starteServer() {
@@ -29,8 +29,7 @@ public class Proxy_Server_Start {
 	public static void main(String[] args) {
 		Proxy_Server_Start proxyServer = new Proxy_Server_Start();
 		proxyServer.starteServer();
-		proxyServer.starteClient("", 123); //für lab30
-		proxyServer.starteClient("", 123); //für lab31
+		proxyServer.starteClient("dima"); //für lab30
 		
 	}	
 }

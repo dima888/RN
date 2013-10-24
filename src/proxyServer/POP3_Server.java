@@ -48,8 +48,7 @@ class POP3_Server {
 	
 	private class POP3_Server_Thread extends Thread{
 		
-		private int name;
-		private RFC_1939_Parser parser = new RFC_1939_Parser();
+		private int name;	
 		private Path path;
 		
 		private Socket socket;
