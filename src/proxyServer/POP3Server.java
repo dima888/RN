@@ -6,23 +6,22 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
-class POP3_Server {
+class POP3Server {
 	
 	/* Server, der Verbindungsanfragen entgegennimmt */
 	private static final int SERVER_PORT = 11_000; // Auf diesen Port wird "gelauscht"
-	private Path path;
-	private static int count = 0;
+	private Path dirPath = Paths.get("C:\\Users\\Flah\\Desktop\\Emails"); // angabe des Pfades zum Verzeichnis, in welchem die Datein liegen
+	private static int count = 0; // soll für uns die Clientanzahl zählen, die sich mit diesem Server verbunden hat
 	
-	POP3_Server(Path path) {
-		this.path = path;
+	POP3Server(Path dirPath) {
+		this.dirPath = dirPath;
 	}
 	
 	void startePOP3_Server() {
 		ServerSocket welcomeSocket; // ServerSocket zum lauschen
 		Socket connectionSocket; // VerbindungsSocket mit Client
-		
-		int counter = 0; // Zähler für die verbundenen Clienten
 		
 		try {
 			welcomeSocket = new ServerSocket(SERVER_PORT);
@@ -38,7 +37,7 @@ class POP3_Server {
 				connectionSocket = welcomeSocket.accept();
 				
 				// Neuen Arbeits-Thread erzeugen und starten mit übergebenen Socket
-				(new POP3_Server_Thread(connectionSocket, path)).start();
+				(new POP3_Server_Thread(connectionSocket, dirPath)).start();
 			}
 			
 		} catch (IOException e) {
