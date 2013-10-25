@@ -10,14 +10,24 @@ import java.nio.file.Paths;
 
 class POP3Server {
 	
+	//*********************** ATTRIBUTE *****************************
+	
 	/* Server, der Verbindungsanfragen entgegennimmt */
 	private static final int SERVER_PORT = 11_000; // Auf diesen Port wird "gelauscht"
-	private Path dirPath = Paths.get("C:\\Users\\Flah\\Desktop\\Emails"); // angabe des Pfades zum Verzeichnis, in welchem die Datein liegen
+	private Path dirPath = ServerAccountManagement.getDirPath(); // angabe des Pfades zum Verzeichnis, in welchem die Datein liegen
 	private static int count = 0; // soll für uns die Clientanzahl zählen, die sich mit diesem Server verbunden hat
+	
+	//Anmeldedaten für genau einen Clienten in beispielsweise Thunderbird
+	private final String USER = "flah";
+	private final String PASS = "123";
+	
+	//********************** KONSTRUKTOR *****************************
 	
 	POP3Server(Path dirPath) {
 		this.dirPath = dirPath;
 	}
+	
+	//*********************** METHODEN *******************************
 	
 	void startePOP3_Server() {
 		ServerSocket welcomeSocket; // ServerSocket zum lauschen
@@ -44,6 +54,8 @@ class POP3Server {
 			System.err.println(e.toString());
 		}
 	}
+	
+	
 	
 	private class POP3_Server_Thread extends Thread{
 		

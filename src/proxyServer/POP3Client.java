@@ -6,35 +6,21 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.Timestamp;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 import proxyServer.ServerAccountManagement.Info;
 
 /********************************************* TODO *********************************************************************
- * Die Mails lassen sich schon abholen und speichern jedoch nicht so wie es sollte.
- * Worauf genau muss man achten beim holen und abspeichern ? Bisher ist es so,
- * dass auf nichts geachtet wird, sondern nur der Inhalt der Mail in einer Datei abgespeichert wird.
- * Bis auf diesen Punkt, funktioniert der rest. 
- * Das Auslesen der Mail ist bisher, sehr hässlich gelöst mit einer endlosschleife und einem 'break' drin.
- * Ich habe es anders versucht, doch dies endete in einer kompletten Endlosschleife
+ * Die Mails lassen sich schon abholen und speichern.
  * 
  * Fehlen tut noch, dass der Client nach der ausführung 30 Sekunden schlafen geht. Mit Thread.currentThread().sleep() hat 
- * es irgendwie nicht geklappt. Dies ist aber ein kleineres Übel.
- * 
- * Man könnte eventuell den Konstruktor um noch ein Parameter erweitern, falls man die Pfadangabe
- * dynamisch machen möchte zum Verzeichnis.
+ * es irgendwie nicht geklappt. Dies ist aber ein kleineres Übel. Das kann man auf vielen Varianten lösen.
  * 
  * Ich wäre dafür den Pfad zum Verzeichnis in der Klasse ServerAccountManagement zu verwalten, da wir diesen einmal in
  * dieser Klasse benötigen und einmal in der POP3Server Klasse. Somit haben wir Code duplizierung und müssen auch, wenn
@@ -45,23 +31,21 @@ import proxyServer.ServerAccountManagement.Info;
 
 class POP3Client {
 	
-	//********************* ATTRIBUTE *****************************
+	//*********************** ATTRIBUTE *****************************
 	
 	private String clientName;
 	//Liste mit den Kontoinformationen für das jeweilige Konto
 	private List<Info> infos = new ArrayList<>();
 	
 	/* Server, der Verbindungsanfragen entgegennimmt */
-	private Path dirPath = Paths.get("C:\\Users\\Flah\\Desktop\\Emails"); //Pfad des verzeichnisses festlegen unter diesem werden die datein abgespeichert
-	
-	Socket socket; // VerbindungsSocket mit Client
+	private Path dirPath = ServerAccountManagement.getDirPath(); //Pfad des verzeichnisses festlegen unter diesem werden die datein abgespeichert
 	
 	private DataOutputStream outToServer; //Ausgabestream zum Server 
 	private BufferedReader inFromServer; // Eingabestream vom Server
 
 	private boolean serviceRequested = true; // Client läuft solange true
 
-	//********************** KONSTRUKTOR ******************************
+	//********************** KONSTRUKTOR *****************************
 	
 	POP3Client(String clientName) {
 		this.clientName = clientName;
@@ -91,9 +75,8 @@ class POP3Client {
 			throw new IllegalArgumentException("Das '" + clientName + "' ist nicht vorhanden!");
 		}
 	}
-		
+	
 	void startePOP3_Client() {		
-		String requestFromClient; // Anfrage des Clienten
 		String answerFromServer; // Antwort vom Server
 		
 		// ENDLOSSCHLEIFE --> Der client soll mails holen, bis wir nicht mehr
@@ -105,92 +88,70 @@ class POP3Client {
 				try {
 					//****************************** VERBINDUNGSAUFBAU **************************************************
 					
-					socket = new Socket(i.getIp(), i.getServerPort());
+					Socket socket = verbindungAufbauen(i.getIp(), i.getServerPort());
+					
 					System.out.println("TCP-Client hat sich verbunden!");
-
-					/* Socket-Basisstreams durch spezielle Streams filtern */
-					outToServer = new DataOutputStream(socket.getOutputStream());
-					inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
 					System.out.println("TCP-CLient beschafft Email von Emailadresse: "	+ i.getKontoName());
 
 					//*********************************** AUTHENTIFIZIERUNG **********************************************
 					
-					// Schreibe USER + name zum Server
-					writeToServer("USER " + i.getKontoName());
-
-					// Hole Antwort vom Server
-					answerFromServer = readFromServer(); //NACHRICHT --> POP server ready...
-					answerFromServer = readFromServer(); //Antwort auf --> USER + kontoname
-
-					// Prüfe ob Server Kontoname akzeptiert hat
-					pruefeObServerKontoNameAkzeptiertHat(answerFromServer, i);
+					boolean a = authentifizierung(i.getKontoName(), i.getPassword());
 					
-					// Schreibe PASS + passwort zum Server
-					writeToServer("PASS " + i.getPassword());
-
-					// Hole Antwort vom Server
-					answerFromServer = readFromServer();
+					if(! a) {
+						System.err.println("Authentifizierung fehlgeschlagen, Benutzername oder Passwort falsch bei Konto: " + i.getKontoName());
+						continue;
+					}
 					
-					// Prüfe ob Server Passwort akzeptiert hat
-					pruefeObServerPasswortAkzeptiertHat(answerFromServer, i);
-					
-					System.out.println("TCP-Client hat sich erfolgreich eingeloggt bei + " + i.getKontoName());
+					System.out.println("TCP-Client hat sich erfolgreich eingeloggt bei " + i.getKontoName());
 
 					//*********************************** EMAIL BESCHAFFUNG **********************************************
 					
 					//Nachschauen wieviele ungelesenen Emails vorhanden sind
 					writeToServer("STAT"); //Befehl gibt uns die Anzahl an Emails und Anzahlder Zeichen aus
 					
+					answerFromServer = readFromServer(); //Gibt Auskunft über das Konto an
 					answerFromServer = readFromServer(); //+OK Anzahl und Zeichen
 					
-					//Anzahl der ungelesenen Mails filtern
-					Scanner scanner = new Scanner(answerFromServer);
-					scanner.next(); //Zum überspringen des --> +OK
-					//Beispiel: EINGABE --> LIST	AUSGABE DES SERVERS --> +OK 3 4070
-					String zahl = scanner.next();
-					int anzahl = Integer.parseInt(zahl);
+					//Extrahiert die Anzahl der Emails aus dem String
+					int anzahlDerEmails = gibMirAnzahlDerMails(answerFromServer);
 					
 					//Falls keine Mails da sind, dann ist das nächste Konto dran
-					if(anzahl == 0) {
+					if(anzahlDerEmails == 0) {
 						continue; //Wir gehen einen Durchlauf weiter, zum nächsten
 					}
 					
 					//Ist die Anzahl != 0, dann wollen wir die Emails holen und abspeichern
 					//Schleife um alle Mails auszulesen und abzuspeichern
-					for(int j = 1; j <= anzahl; j++) {
+					for(int j = 1; j <= anzahlDerEmails; j++) {
 						
 						//Befehl zum erhalten der Mail an den Server schicken
 						writeToServer("RETR " + j);
-						//System.out.println(readFromServer());
 						
-						//VerzeichnisPfad holen
-						String path = dirPath.toFile().getAbsolutePath();
-						path += "\\";
+						//Puffer für den Text
+						List<String> puffer = new ArrayList<>();
 						
-						//DateiPfad erzeugen
-						path += "Email " + j + ".txt"; //TODO VIELLEICHT NOCH ZEIT DRANHÄNGEN
-						
-						//Datei erzeugen und den Pfad angeben
-						File f = new File(path);
-						
-						//Zum schreiben in die Datei
-						FileWriter fw = new FileWriter(f);
+						boolean flag = true;
 						
 						//komplette Mail auslesen
 						//TODO: Klappt noch nicht ganz
 						//while(! (readFromServer().contains("\r\n"))) --> ENDLOSSCHLEIFE !
-						while(true) {
-							String answer = readFromServer();
+						while(flag) {
+							String answer = "";
+							
+							answer += readFromServer();
+							System.out.println("ANTWORT: " + answer);
+							
+							puffer.add(answer);
 							
 							//Kommt keine Antwort mehr vom Server, haben wir alles erhalten
-							if(answer.isEmpty()) {
-								break;
+							//MIT ABSICHT NUR EIN DURCHLAUF DER SCHLEIFE --> RICHTIGE ABBRUCHBEDINGUNG BENÖTIGT
+							//flag = false;
+							if(answer.startsWith(".")) {
+								flag = false;
 							}
-							
-							fw.write(answer);
 						}
-						fw.close();
+						
+						speicherDieEmail(puffer, j);
 					}
 
 					//Verbindung wieder schließen
@@ -203,30 +164,77 @@ class POP3Client {
 		//}
 	}
 	
-	private boolean pruefeObServerKontoNameAkzeptiertHat(String answerFromServer, Info i) {
-		Scanner scanner = new Scanner(answerFromServer);
-		if(scanner.next().compareTo("+OK") == 0) {
-			scanner.close();
-			System.out.println("MailServer hat Kontoname: " + i.getKontoName()	+ " akzeptiert");
-			return true;
-		} else {
-			scanner.close();
-			System.err.println("MailServer hat Kontoname: " + i.getKontoName()	+ " nicht akzeptiert");
-			return false;
-		}		
+	private Socket verbindungAufbauen(String ip, int port) throws IOException {
+		Socket socket = new Socket(ip, port);
+		
+		/* Socket-Basisstreams durch spezielle Streams filtern */
+		outToServer = new DataOutputStream(socket.getOutputStream());
+		inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		
+		return socket;
 	}
 	
-	private boolean pruefeObServerPasswortAkzeptiertHat(String answerFromServer, Info i) {
-		Scanner scanner = new Scanner(answerFromServer);
-		if(scanner.next().compareTo("+OK") == 0) {
-			scanner.close();
-			System.out.println("MailServer hat Passwort: " + i.getPassword() + " akzeptiert");
-			return true;
-		} else {
-			scanner.close();
-			System.err.println("MailServer hat Passwort: " + i.getPassword() + " nicht akzeptiert");
+	private boolean authentifizierung(String benutzername, String passwort) throws IOException {
+		String answerFromServer;
+		
+		// Schreibe USER + name zum Server
+		writeToServer("USER " + benutzername);
+		
+		//Antwort überprüfen
+		answerFromServer = readFromServer(); //Antwort auf --> USER + kontoname
+		
+		if(answerFromServer.startsWith("-ERR")) {
 			return false;
-		}		
+		}
+		
+		// Schreibe PASS + passwort zum Server
+		writeToServer("PASS " + passwort);
+		
+		//Antwort überprüfen
+		answerFromServer = readFromServer(); //Antwort auf --> PASS + passwort
+		
+		if(answerFromServer.startsWith("-ERR")) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	private int gibMirAnzahlDerMails(String answerFromServer) {
+		int result = 0;
+		
+		//Anzahl der ungelesenen Mails filtern
+		Scanner scanner = new Scanner(answerFromServer);
+		System.out.println("ANTWORT: " + answerFromServer );
+		scanner.next(); //Zum überspringen des --> +OK
+		//Beispiel: EINGABE --> LIST	AUSGABE DES SERVERS --> +OK 3 4070
+		String zahl = scanner.next();
+		result = Integer.parseInt(zahl);
+		
+		return result;
+	}
+	
+	private void speicherDieEmail(List<String> email, int emailNummer) throws IOException {
+		//VerzeichnisPfad holen
+		String path = dirPath.toFile().getAbsolutePath();
+		path += "\\";
+		
+		//DateiPfad erzeugen
+		path += "Email " + emailNummer + ".txt"; //TODO VIELLEICHT NOCH ZEIT DRANHÄNGEN
+		
+		//Datei erzeugen und den Pfad angeben
+		File f = new File(path);
+		
+		//Zum schreiben in die Datei
+		FileWriter fw = new FileWriter(f);
+		
+		for(String zeile : email) {
+			//In die Datei schreiben
+			fw.write(zeile);
+		}
+		
+		//Den Writer schließen
+		fw.close();
 	}
 	
 	private void writeToServer(String request) throws IOException {
@@ -234,7 +242,7 @@ class POP3Client {
 	}
 	
 	private String readFromServer() throws IOException {
-		return inFromServer.readLine();
+		return inFromServer.readLine() + '\n';
 	}
 	
 	public static void main(String[] args) {

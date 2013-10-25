@@ -1,5 +1,7 @@
 package proxyServer;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,22 +10,25 @@ import java.util.Map;
  */
 class ServerAccountManagement {
 	
+	//Verwaltet alle Konten für einen Benutzer
 	private static Map<Info, String> abbildung = new HashMap<>();
-	private Info information; 
+	// PFad  zum Verzeichnis, in dem wir die Emails speichern möchten
+	private static Path dirPath = Paths.get("C:\\Users\\Flah\\Desktop\\Emails");
 	
 	public ServerAccountManagement(String clientName, String ip, int serverPort, String kontoName, String password) {
-		information = new Info(ip, serverPort, kontoName, password);
+		Info information = new Info(ip, serverPort, kontoName, password);
 		abbildung.put(information, clientName);
 	}
 	
-	/*
-	 * Gibt uns die Konteninformationen
-	 */
 	public static Map<Info, String> getAbbildung() {
 		return abbildung;
 	}
 	
-	// Datenbehälter
+	public static Path getDirPath() {
+		return dirPath;
+	}
+	
+	// Datenbehälter für Kontoinformationen
 	class Info {
 		private String ip;
 		private int serverPort;
@@ -37,30 +42,18 @@ class ServerAccountManagement {
 			this.password = password;
 		}
 
-		/**
-		 * @return the ip
-		 */
 		public String getIp() {
 			return ip;
 		}
 
-		/**
-		 * @return the serverPort
-		 */
 		public int getServerPort() {
 			return serverPort;
 		}
 
-		/**
-		 * @return the kontoName
-		 */
 		public String getKontoName() {
 			return kontoName;
 		}
 
-		/**
-		 * @return the password
-		 */
 		public String getPassword() {
 			return password;
 		}
