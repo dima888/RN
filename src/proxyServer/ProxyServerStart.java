@@ -28,9 +28,9 @@ public class ProxyServerStart {
 	
 	public static void main(String[] args) {
 		//*************************************************************************************************************************************************
-		//BenutzerDaten abspeichern
+		//BenutzerDaten abspeichern --> Beispiel ACCOUNT
 		ServerAccountManagement account1 = new ServerAccountManagement("flah", "pop.gmx.de", 110, "flah_ahmad@gmx.de", "RN2013Huebner"); //Bitte Passwort nicht löschen, sonst vergesse ich es !
-		ServerAccountManagement account2;
+		ServerAccountManagement account2; //beliebig viele sind möglich
 		ServerAccountManagement account3;
 		
 		//*************************************************************************************************************************************************

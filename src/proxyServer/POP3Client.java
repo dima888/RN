@@ -19,7 +19,7 @@ import proxyServer.ServerAccountManagement.Info;
 /********************************************* TODO *********************************************************************
  * Die Mails lassen sich schon abholen und speichern.
  * 
- * Fehlen tut noch, dass der Client nach der ausführung 30 Sekunden schlafen geht. Mit Thread.currentThread().sleep() hat 
+ * Fehlen tut noch, dass der Client alle 30 SEKUNDEN die MAILS abholt. Mit Thread.currentThread().sleep() hat 
  * es irgendwie nicht geklappt. Dies ist aber ein kleineres Übel. Das kann man auf vielen Varianten lösen.
  * 
  * Ich wäre dafür den Pfad zum Verzeichnis in der Klasse ServerAccountManagement zu verwalten, da wir diesen einmal in
@@ -47,6 +47,7 @@ class POP3Client {
 
 	//********************** KONSTRUKTOR *****************************
 	
+	//"AUTOMATISIERTER KONSTRUKTOR" --> Beim erstellen eines Objektes wird alles weitere automatisch ausgeführt
 	POP3Client(String clientName) {
 		this.clientName = clientName;
 		getInfos(); //Zu dem übergebnen clientName die Konten heraus suchen
@@ -76,7 +77,7 @@ class POP3Client {
 		}
 	}
 	
-	void startePOP3_Client() {		
+	private void startePOP3_Client() {		
 		String answerFromServer; // Antwort vom Server
 		
 		// ENDLOSSCHLEIFE --> Der client soll mails holen, bis wir nicht mehr
@@ -143,14 +144,12 @@ class POP3Client {
 							
 							puffer.add(answer);
 							
-							//Kommt keine Antwort mehr vom Server, haben wir alles erhalten
-							//MIT ABSICHT NUR EIN DURCHLAUF DER SCHLEIFE --> RICHTIGE ABBRUCHBEDINGUNG BENÖTIGT
-							//flag = false;
+							//WENN wir eine ZEILE mit nur einem PUNKT bekommen, sind wir durch
+							//SIEHE RN FOLIE 2 ab SEITE 26 BEISPIELE
 							if(answer.startsWith(".")) {
 								flag = false;
 							}
 						}
-						
 						speicherDieEmail(puffer, j);
 					}
 
@@ -164,6 +163,7 @@ class POP3Client {
 		//}
 	}
 	
+	//Baut eine Verbindung per Socket mit einem HOST auf
 	private Socket verbindungAufbauen(String ip, int port) throws IOException {
 		Socket socket = new Socket(ip, port);
 		
@@ -174,6 +174,7 @@ class POP3Client {
 		return socket;
 	}
 	
+	//Führt die Authentifizierung eines Clienten mit dem Server durch
 	private boolean authentifizierung(String benutzername, String passwort) throws IOException {
 		String answerFromServer;
 		
@@ -200,6 +201,7 @@ class POP3Client {
 		return true;
 	}
 	
+	//Gibt uns die Anzahl der vorhandenen EMAILS --> notwenig für die Schleifendurchläufe
 	private int gibMirAnzahlDerMails(String answerFromServer) {
 		int result = 0;
 		
@@ -214,8 +216,9 @@ class POP3Client {
 		return result;
 	}
 	
+	//Speichert die email unter dem angegebenen Pfad in der Klasse ServerAccountManagement, mit dynamischen Dateinamen
 	private void speicherDieEmail(List<String> email, int emailNummer) throws IOException {
-		//VerzeichnisPfad holen
+		//VerzeichnisPfad holen und Dateipfad dynamisch erzeugen
 		String path = dirPath.toFile().getAbsolutePath();
 		path += "\\";
 		
@@ -237,15 +240,13 @@ class POP3Client {
 		fw.close();
 	}
 	
+	//Leitet unsere Anfragen an den Server weiter
 	private void writeToServer(String request) throws IOException {
 		outToServer.writeBytes(request + '\n'); // Ausgabe an den Server
 	}
 	
+	//Holt uns die Antwort des Servers auf eine Anfrage
 	private String readFromServer() throws IOException {
 		return inFromServer.readLine() + '\n';
-	}
-	
-	public static void main(String[] args) {
-		
 	}
 }
