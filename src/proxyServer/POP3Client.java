@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 import proxyServer.ServerAccountManagement.Info;
@@ -27,6 +28,19 @@ import proxyServer.ServerAccountManagement.Info;
  * wir ihn mal ändern müssen, dies an zwei Stellen tun.
  * 
  * Ich habe mir ein GMX Konto eingerichtet, was du natürlich auch verwenden kannst.
+ * 
+ * AUSLESEN DER MAIL erweitert. Jetzt erkennt er auch folgenden Text:
+ * 
+ * hallo.			Zeile 0
+ * was geht.		Zeile 1
+ * .				Zeile 2	
+ * gut.				Zeile 3
+ * freut mich.		Zeile 4
+ * .				Zeile 5
+ * 
+ * Vorher hätte er bei Zeile 2 aufgehört die Mail weiter auszulesen, da ein einzelner Punkt in einer Reihe das Ende der
+ * Mail bedeutet. Nun ist noch eine weitere Prüfung eingebaut, ob nach dem Punkt noch etwas kommt und damit wird bis
+ * Zeile 5 ausgelesen.
  *************************************************************************************************************************/
 
 class POP3Client {
@@ -82,7 +96,7 @@ class POP3Client {
 		
 		// ENDLOSSCHLEIFE --> Der client soll mails holen, bis wir nicht mehr
 		// möchten
-		//while (serviceRequested) {
+		while (serviceRequested) {
 			// für alle Konten des clienten, also für alle 'INFO' Objekte eine
 			// Verbindung aufbauen und die Emails holen
 			for (Info i : infos) {
@@ -147,20 +161,35 @@ class POP3Client {
 							//WENN wir eine ZEILE mit nur einem PUNKT bekommen, sind wir durch
 							//SIEHE RN FOLIE 2 ab SEITE 26 BEISPIELE
 							if(answer.startsWith(".")) {
-								flag = false;
+								Scanner scanner = new Scanner(answer);
+								scanner.next(); //Auch der Punkt
+								
+								//überprüfen, ob nach dem Punkt noch etwas kommt
+								try {
+									scanner.next(); //Löst eine Exception aus, falls kein weiteres Element existiert
+								} catch(NoSuchElementException e) {
+									System.out.println("SCANNER HAT NACH DEM PUNKT NICHTS MEHR GEFUNDEN!");
+									flag = false; //Schleife beenden, da Email komplett ausgelesen
+								}
 							}
 						}
+						//Email im Dateisystem abspeichern
 						speicherDieEmail(puffer, j);
 					}
-
 					//Verbindung wieder schließen
 					socket.close();
 					
+					System.out.println("Ich bin dann mal 30 Sekunden Schlafen !");
+					Thread.currentThread().sleep(30_000);
+					System.out.println("Ich bin wieder erwacht und es kann weiter gehen !\n");
+					
 				} catch (IOException e) {
-					System.out.println("TCP Verbindung konnte zum Server nicht hergestellt werden");
+					System.err.println("TCP Verbindung konnte zum Server nicht hergestellt werden");
+				} catch (InterruptedException e) {
+					System.err.println("Wer hat mich aus dem Schlaf gerissen ?!");
 				} 
 			}
-		//}
+		}
 	}
 	
 	//Baut eine Verbindung per Socket mit einem HOST auf
