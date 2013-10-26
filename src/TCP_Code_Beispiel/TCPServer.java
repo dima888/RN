@@ -75,8 +75,7 @@ class TCPServerThread extends Thread {
 
 		try {
 			/* Socket-Basisstreams durch spezielle Streams filtern */
-			inFromClient = new BufferedReader(new InputStreamReader(
-					socket.getInputStream()));
+			inFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			outToClient = new DataOutputStream(socket.getOutputStream());
 
 			while (serviceRequested) {

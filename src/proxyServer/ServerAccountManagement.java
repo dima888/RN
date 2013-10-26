@@ -23,6 +23,10 @@ class ServerAccountManagement {
 		abbildung.put(information, clientName);
 	}
 	
+	/**
+	 * Hier werden die Information aller User in einer Map verwaltet. Info -> (ip, serverport, kontoName, password); User -> "Whatever"
+	 * @return Map - abbildung
+	 */
 	public static Map<Info, String> getAbbildung() {
 		return abbildung;
 	}

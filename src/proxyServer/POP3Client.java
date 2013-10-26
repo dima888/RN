@@ -61,7 +61,10 @@ class POP3Client {
 
 	//********************** KONSTRUKTOR *****************************
 	
-	//"AUTOMATISIERTER KONSTRUKTOR" --> Beim erstellen eines Objektes wird alles weitere automatisch ausgeführt
+	/**
+	 * "AUTOMATISIERTER KONSTRUKTOR" --> Beim erstellen eines Objektes wird alles weitere automatisch ausgeführt
+	 * @param clientName
+	 */
 	POP3Client(String clientName) {
 		this.clientName = clientName;
 		getInfos(); //Zu dem übergebnen clientName die Konten heraus suchen
@@ -78,7 +81,9 @@ class POP3Client {
 	
 	//*********************** METHODEN *******************************
 	
-	//Beschafft die Kontoinformationen zu dem im Konstruktor übergebenen clientName
+	/**
+	 * Beschafft die Kontoinformationen zu dem im Konstruktor übergebenen clientName
+	 */
 	private void getInfos() {
 		for(Map.Entry<Info, String> pair : ServerAccountManagement.getAbbildung().entrySet()) {
 				if(pair.getValue().compareTo(clientName) == 0) {
@@ -91,11 +96,13 @@ class POP3Client {
 		}
 	}
 	
+	/**
+	 * Programm start
+	 */
 	private void startePOP3_Client() {		
 		String answerFromServer; // Antwort vom Server
 		
-		// ENDLOSSCHLEIFE --> Der client soll mails holen, bis wir nicht mehr
-		// möchten
+		// ENDLOSSCHLEIFE --> Der client soll mails holen, bis wir nicht mehr möchten
 		while (serviceRequested) {
 			// für alle Konten des clienten, also für alle 'INFO' Objekte eine
 			// Verbindung aufbauen und die Emails holen
