@@ -163,7 +163,13 @@ class POP3Client {
 		//}
 	}
 	
-	//Baut eine Verbindung per Socket mit einem HOST auf
+	/**
+	 * Baut eine Verbindung per Socket mit einem HOST auf
+	 * @param ip
+	 * @param port
+	 * @return
+	 * @throws IOException
+	 */
 	private Socket verbindungAufbauen(String ip, int port) throws IOException {
 		Socket socket = new Socket(ip, port);
 		
@@ -174,7 +180,13 @@ class POP3Client {
 		return socket;
 	}
 	
-	//Führt die Authentifizierung eines Clienten mit dem Server durch
+	/**
+	 * Führt die Authentifizierung eines Clienten mit dem Server durch
+	 * @param benutzername
+	 * @param passwort
+	 * @return
+	 * @throws IOException
+	 */
 	private boolean authentifizierung(String benutzername, String passwort) throws IOException {
 		String answerFromServer;
 		
@@ -201,7 +213,11 @@ class POP3Client {
 		return true;
 	}
 	
-	//Gibt uns die Anzahl der vorhandenen EMAILS --> notwenig für die Schleifendurchläufe
+	/**
+	 * Gibt uns die Anzahl der vorhandenen EMAILS --> notwenig für die Schleifendurchläufe
+	 * @param answerFromServer
+	 * @return
+	 */
 	private int gibMirAnzahlDerMails(String answerFromServer) {
 		int result = 0;
 		
@@ -216,7 +232,12 @@ class POP3Client {
 		return result;
 	}
 	
-	//Speichert die email unter dem angegebenen Pfad in der Klasse ServerAccountManagement, mit dynamischen Dateinamen
+	/**
+	 * Speichert die email unter dem angegebenen Pfad in der Klasse ServerAccountManagement, mit dynamischen Dateinamen
+	 * @param email
+	 * @param emailNummer
+	 * @throws IOException
+	 */
 	private void speicherDieEmail(List<String> email, int emailNummer) throws IOException {
 		//VerzeichnisPfad holen und Dateipfad dynamisch erzeugen
 		String path = dirPath.toFile().getAbsolutePath();

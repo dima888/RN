@@ -15,6 +15,8 @@ class ServerAccountManagement {
 	
 	// PFad  zum Verzeichnis, in dem wir die Emails speichern möchten --> erstellt für uns ein Verzeichnis
 	private static Path dirPath = Paths.get("C:\\Users\\Flah\\Desktop\\Emails");
+	private static Path dirPath2 = Paths.get("C:\\Users\\foxhound\\Desktop\\Emails");
+	private static Path dirPathLab = Paths.get("C:\\Users\\Flah\\Desktop\\Emails");
 	
 	public ServerAccountManagement(String clientName, String ip, int serverPort, String kontoName, String password) {
 		Info information = new Info(ip, serverPort, kontoName, password);
