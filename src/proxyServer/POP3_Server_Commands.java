@@ -92,19 +92,20 @@ class POP3_Server_Commands {
 	  * @return
 	  * @throws IOException 
 	  */
-	 static String stat()  {
-		 //TODO emailsCount zu String parsen
-		 int emailsCount = 0;
+	 static String stat()  {	
+		 int count = 0;
 		 ServerAccountManagement.getDirPath2();
 		 File f = new File(ServerAccountManagement.getDirPath2().toString());
 		 
 		 
 		System.out.println(f.listFiles());
 		for(File i : f.listFiles()) {
-			emailsCount ++;
+			count ++;
 		}
 		
-		
+		Integer c = new Integer(count);
+		String emailCount = c.toString();
+		System.out.println(emailCount);
 		 
 		// TODO Auto-generated method stub
 		return null;
