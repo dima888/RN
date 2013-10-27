@@ -30,9 +30,13 @@ class ServerAccountManagement {
 	public static Map<Info, String> getAbbildung() {
 		return abbildung;
 	}
-	
+	//*************** GETTER *******************
 	public static Path getDirPath() {
 		return dirPath;
+	}
+	
+	public static Path getDirPath2() {
+		return dirPath2;
 	}
 	
 	// Datenbehälter für Kontoinformationen

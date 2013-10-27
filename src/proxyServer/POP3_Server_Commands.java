@@ -1,12 +1,11 @@
 package proxyServer;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.nio.file.Files;
 
+import javax.swing.text.html.parser.Parser;
 
 /**
  * Proconditions, fuer die Korrekte Schreibweise von Client an den Server
@@ -25,9 +24,6 @@ class POP3_Server_Commands {
 		 //Nicht möglich Objekte von außen zu erzeugen !
 	 }
 		
-	
-
-	
 	
 	//************************* RFC 1939 METHODS *****************************
 	
@@ -91,7 +87,25 @@ class POP3_Server_Commands {
 		return null;
 	}
 
-	 static String stat() {
+	 /**
+	  * Liefert den Status der Mailbox, u.a. die Anzahl aller E-Mails im Postfach und deren Gesamtgröße (in Byte).
+	  * @return
+	  * @throws IOException 
+	  */
+	 static String stat()  {
+		 //TODO emailsCount zu String parsen
+		 int emailsCount = 0;
+		 ServerAccountManagement.getDirPath2();
+		 File f = new File(ServerAccountManagement.getDirPath2().toString());
+		 
+		 
+		System.out.println(f.listFiles());
+		for(File i : f.listFiles()) {
+			emailsCount ++;
+		}
+		
+		
+		 
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -113,8 +127,6 @@ class POP3_Server_Commands {
 	
 	//**************************** TEST *****************************
 	public static void main(String[] args) {
-//		System.out.println(checkAllCommand("user dima888@gmx.net"));
-//		System.out.println(checkAllCommand("pass 12345678"));
-		//System.out.println(password("pass Aa", "Aa"));	
+		stat();
 	}
 }
