@@ -40,14 +40,14 @@ class POP3_Server_Commands {
 //		String firstPartCommand = getFirstPartCommand(clientCommand);
 //		secondPartCommand = getSecondPartCommand(clientCommand);
 		
-		for(Map.Entry<String, Object> pair : mapCommands.entrySet()) {
-			if(pair.getKey().compareTo(firstPartCommand.toLowerCase()) == 0) {
-				if(secondPartCommand.isEmpty()) {
-					return  pair.getValue();
-				} 				
-			}
-		}		
-		return err;		
+//		for(Map.Entry<String, Object> pair : mapCommands.entrySet()) {
+//			if(pair.getKey().compareTo(firstPartCommand.toLowerCase()) == 0) {
+//				if(secondPartCommand.isEmpty()) {
+//					return  pair.getValue();
+//				} 				
+//			}
+//		}		
+//		return err;		
 	}
 	
 	
@@ -61,14 +61,11 @@ class POP3_Server_Commands {
 	 * @return
 	 */
 	 String user() {		
-		System.out.println("Global: " + this.secondPartCommand);
 		if(POP3Server.getUser().compareTo(secondPartCommand) == 0) {
 			System.out.println("USER erkannt");
 			return ok;
 		}
-//		return err;
-		
-		return user("AAA");
+		return err;
 	}
 	
 	 String user(String a) {
@@ -137,17 +134,17 @@ class POP3_Server_Commands {
 //		return false;
 //	}
 	
-	private  String getSecondPartCommand(String command) {
-		if (command.length() < 6) { // Sechs, weil der BenutzerName mindestens ein Zeichen bei uns Haben muss
-			return err;
-		}
-		
-		String result = "";
-		for(int i = 5; i < command.length(); i++) {
-			result += command.toCharArray()[i];
-		}
-		return result;
-	}	
+//	private  String getSecondPartCommand(String command) {
+//		if (command.length() < 6) { // Sechs, weil der BenutzerName mindestens ein Zeichen bei uns Haben muss
+//			return err;
+//		}
+//		
+//		String result = "";
+//		for(int i = 5; i < command.length(); i++) {
+//			result += command.toCharArray()[i];
+//		}
+//		return result;
+//	}	
 	
 	//**************************** TEST *****************************
 	public static void main(String[] args) {
