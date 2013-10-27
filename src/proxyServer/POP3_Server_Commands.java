@@ -1,5 +1,6 @@
 package proxyServer;
 
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -35,7 +36,7 @@ class POP3_Server_Commands {
 			return err;
 		}
 		
-		//Preconditon: Hier wird geprueft ob der zu uns verbindente Client von uns Bekannt ist
+		//Preconditon: Hier wird geprueft ob der zu uns verbindente Client uns Bekannt ist
 //		for (Map.Entry<Info, String> map : ServerAccountManagement.getAbbildung().entrySet()) {
 //			if(map.getValue().compareTo(userName) == 0) {
 //			} else{
