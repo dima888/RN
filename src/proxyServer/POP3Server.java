@@ -16,7 +16,7 @@ class POP3Server {
 	//*********************** ATTRIBUTE *****************************
 	
 	/* Server, der Verbindungsanfragen entgegennimmt */
-	private static final int SERVER_PORT = 11_003; // Auf diesen Port wird "gelauscht"
+	private static final int SERVER_PORT = 110; // Auf diesen Port wird "gelauscht"
 	private static Path dirPath = ServerAccountManagement.getDirPath(); // angabe des Pfades zum Verzeichnis, in welchem die Datein liegen
 	private static int count = 0; // soll für uns die Clientanzahl zählen, die sich mit diesem Server verbunden hat
 	
@@ -24,8 +24,18 @@ class POP3Server {
 //	private final String USER = "flah";
 //	private final String PASS = "123";
 	
-	private final String USER = "foxhound"; //dima888@gmx.net
-	private final String PASS = "12345678";
+	private static final String USER = "dima888@gmx.net"; //foxhound
+	private static final String PASS = "12345678";
+	
+	
+	// *********************GETTER**********************
+	public static String getUser() {
+		return USER;
+	}
+	
+	public static String getPassword() {
+		return PASS;
+	}
 	
 	//********************** KONSTRUKTOR *****************************	
 	POP3Server(Path dirPath) {
@@ -38,7 +48,7 @@ class POP3Server {
 		Socket connectionSocket; // VerbindungsSocket mit Client
 		
 		try {
-			welcomeSocket = new ServerSocket(SERVER_PORT); 
+			welcomeSocket = new ServerSocket(SERVER_PORT); 						
 			
 			while(true) {
 				System.out.println("TCP Server: Lauschen auf Port: " + SERVER_PORT);
@@ -86,8 +96,8 @@ class POP3Server {
 //		@Override
 		public void run() {
 			System.out.println("Der Client hat sich zu uns verbunden");
-			
-
+//			USER, PASS, QUIT, START, LIST, RETR, DELE, NOOP, RSET
+			String capa = "+OK Server ready\nUSER\nPASS\nSTAT\nLIST\nRETR\n";							
 			
 			//Erst muss eingeloggt werde, bevor request gestartet werden koennen 
 			try {
@@ -95,14 +105,16 @@ class POP3Server {
 				/* Socket-Basisstreams durch spezielle Streams filtern */
 				inFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				outToClient = new DataOutputStream(socket.getOutputStream());
+								
 
 //				while (serviceRequested) {
 				
-				//writeToClient("+OK POP");
+				writeToClient("+OK Welcome");
 				
 				String request = readFromClient();
 				System.out.println(request);	
-				
+								
+			    writeToClient(capa);
 				
 				request = readFromClient();
 				System.out.println(request);
@@ -151,17 +163,18 @@ class POP3Server {
 		}		
 		
 		private boolean authentication() throws IOException {
-			System.out.println("authentication Method");
-			if(POP3_Server_Commands.user(readFromClient(), USER).compareTo("+OK") == 0) {
+			System.out.println(readFromClient());
+			System.out.println("authentication Method betretten");
+			if(POP3_Server_Commands.user(readFromClient(), USER).compareTo(ok) == 0) {
 				System.out.println("authentication Username");
 				writeToClient(ok + " Username accepted, password please");
-				if(POP3_Server_Commands.password(readFromClient(), PASS).compareTo("+OK") == 0) {
+				if(POP3_Server_Commands.password(readFromClient(), PASS).compareTo(ok) == 0) {
 					System.out.println("authentication Password");
 					writeToClient(ok + " Password accept");
 					return false;
 				}
 			}
-		System.out.println();
+		System.out.println("Verlasse authentication Method erfolglos");
 			return true;
 		}
 	}
