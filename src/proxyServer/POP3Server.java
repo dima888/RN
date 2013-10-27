@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Scanner;
 
 import proxyServer.ServerAccountManagement.Info;
 
@@ -29,6 +30,7 @@ class POP3Server {
 	
 	
 	// *********************GETTER**********************
+	
 	public static String getUser() {
 		return USER;
 	}
@@ -38,11 +40,13 @@ class POP3Server {
 	}
 	
 	//********************** KONSTRUKTOR *****************************	
+	
 	POP3Server(Path dirPath) {
 		this.dirPath = dirPath;
 	}
 	
 	//*********************** METHODEN *******************************	
+	
 	void startePOP3_Server() {
 		ServerSocket welcomeSocket; // ServerSocket zum lauschen
 		Socket connectionSocket; // VerbindungsSocket mit Client
@@ -86,12 +90,41 @@ class POP3Server {
 		private String ok = "+OK";
 		private String err = "-ERR";
 		
+		//************* KONSTRUKTOR *********************
 		POP3_Server_Thread(Socket socket, Path path) {
 			this.socket = socket;
 			this.path = path;
 			this.threadNumber ++;
 			
 		}		
+		
+		//************************* SUPER METHODE; PRUEFT OB BEFEHL LAUT RFC 1939 DEFINIERT IST ***********************		 
+		  String checkAllCommand(String clientCommand) {
+			 
+			 Scanner scanner = new Scanner(clientCommand);
+			 String firstPartCommand = scanner.next();
+			 String secondPartCommand = "";
+			 
+			 if(scanner.hasNext()) {
+				 secondPartCommand = scanner.next();
+			 }
+			 
+			 
+			 switch(firstPartCommand.toLowerCase()) {
+			 //{user, pass, quit, stat, list, retr, dele, noop, rset}
+			 case "user" : return POP3_Server_Commands.user(secondPartCommand); 
+			 case "pass" : return POP3_Server_Commands.password(secondPartCommand); 
+			 case "quit" : return POP3_Server_Commands.quit(socket);
+			 case "stat" : return POP3_Server_Commands.stat(); 
+			 case "list" : if(secondPartCommand.isEmpty()) {return POP3_Server_Commands.list();} else {return POP3_Server_Commands.list(secondPartCommand);}
+			 case "retr" : return POP3_Server_Commands.retr(secondPartCommand); 
+			 case "dele" : return POP3_Server_Commands.dele(secondPartCommand); 
+			 case "noop" : return POP3_Server_Commands.noop(); 
+			 case "rset" : return POP3_Server_Commands.rset(); 
+			 default: return POP3_Server_Commands.err;
+			 
+			 }		
+		}
 		
 //		@Override
 		public void run() {
@@ -113,8 +146,8 @@ class POP3Server {
 				
 				String request = readFromClient();
 				System.out.println(request);	
-								
-			    writeToClient(capa);
+				
+				writeToClient(err);
 				
 				request = readFromClient();
 				System.out.println(request);
@@ -165,10 +198,10 @@ class POP3Server {
 		private boolean authentication() throws IOException {
 			System.out.println(readFromClient());
 			System.out.println("authentication Method betretten");
-			if(POP3_Server_Commands.user(readFromClient(), USER).compareTo(ok) == 0) {
+			if(checkAllCommand(readFromClient()).compareTo(ok) == 0) {
 				System.out.println("authentication Username");
 				writeToClient(ok + " Username accepted, password please");
-				if(POP3_Server_Commands.password(readFromClient(), PASS).compareTo(ok) == 0) {
+				if(checkAllCommand(readFromClient()).compareTo(ok) == 0) {
 					System.out.println("authentication Password");
 					writeToClient(ok + " Password accept");
 					return false;
