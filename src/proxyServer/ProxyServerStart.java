@@ -30,7 +30,7 @@ public class ProxyServerStart {
 		//*************************************************************************************************************************************************
 		//BenutzerDaten abspeichern --> Beispiel ACCOUNT
 		ServerAccountManagement account1 = new ServerAccountManagement("flah", "pop.gmx.de", 110, "flah_ahmad@gmx.de", "RN2013Huebner"); //Bitte Passwort nicht löschen, sonst vergesse ich es !
-		ServerAccountManagement account2; //beliebig viele sind möglich
+		ServerAccountManagement account2 = new ServerAccountManagement("foxhound", "pop.gmx.net", 110, "dima888@gmx.net", "12345678");
 		ServerAccountManagement account3;
 		
 		//*************************************************************************************************************************************************
@@ -38,7 +38,7 @@ public class ProxyServerStart {
 		ProxyServerStart proxyServer = new ProxyServerStart();
 		
 		//ProxyServer starten
-		proxyServer.starteServer();
-		proxyServer.starteClient("flah");
+		//proxyServer.starteServer();
+		proxyServer.starteClient("foxhound");
 	}	
 }

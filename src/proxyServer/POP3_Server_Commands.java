@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import javax.swing.text.html.parser.Parser;
@@ -19,6 +21,8 @@ class POP3_Server_Commands {
 	 static String ok = "+OK";
 	 static String err = "-ERR";
 	 static File f = new File(ServerAccountManagement.getDirPath2().toString());
+	 static int emailNumber = 0;
+	 static Map<File , Integer> emailMap = new HashMap<>();
 	 
 	 //******************************** PRIVATER KONSTRUKTOR ******************************************
 	 
@@ -69,29 +73,33 @@ class POP3_Server_Commands {
 	   * @return
 	   */
 	 static String retr(String secondPartCommand) {
+		 boolean exceptionFlag = true;
+		 String exception = "-ERR invalid sequence number: " + secondPartCommand;
 		 int count = 0;
 		 String result = ok + "\n";
 		 try {
 			 int integer = Integer.parseInt(secondPartCommand);
+
+				for(Map.Entry<File, Integer> pair : emailMap.entrySet()) {
+					if(integer == pair.getValue()) {
+						 exceptionFlag = false;
+						 //Datei auslesen
+						 Scanner scanner = new Scanner(pair.getKey());
+						 while(scanner.hasNextLine()) {
+							 result += scanner.nextLine() + "\n";
+						 }
+						 scanner.close();
+					}
+				}
 			 
-			 for(File i : f.listFiles()) {
-				 if(++count == integer) {
-					 
-					 //Datei auslesen
-					 Scanner scanner = new Scanner(i);
-					 while(scanner.hasNext()) {
-						 result += scanner.next() + " ";
-					 }					 
-				 }
+			 if(exceptionFlag)  {
+				 return exception; //Postcondition
 			 }
 			 
 		} catch (Exception e) {
-			return "-ERR invalid sequence number: " + secondPartCommand;
+			return exception;
 		}
-		 		 		
 		 
-		 
-		// TODO Auto-generated method stub
 		return result;
 	}
 
@@ -100,20 +108,79 @@ class POP3_Server_Commands {
 		return null;
 	}
 
+	 /**
+	  * löscht die n-te E-Mail am E-Mail-Server.
+	  * @param secondPartCommand
+	  * @return
+	  */
 	 static String dele(String secondPartCommand) {
-		// TODO Auto-generated method stub
-		return null;
+		 	boolean exceptionFlag = true;
+			String exception = "-ERR invalid sequence number: " + secondPartCommand;
+			String result = ok + "\n";		
+			int count = 0;			
+
+			try {			
+				int integer = Integer.parseInt(secondPartCommand);
+				
+				for(Map.Entry<File, Integer> pair : emailMap.entrySet()) {
+					if (integer == pair.getValue()) {
+						deleteFile(pair.getKey());					
+					}
+				}
+				
+				 if(exceptionFlag)  {
+					 return exception; //Postcondition
+				 }
+
+			} catch (Exception e) {
+				return exception;
+			}
+
+			return result;
 	}
 
-
+	 /**
+	  * liefert die Anzahl und die Größe der (n-ten) E-Mails.
+	  * @return
+	  */
 	 static String list() {
-		// TODO Auto-generated method stub
-		return null;
+		 int count = 0;
+		 String result = ok + "\n";
+		 for(File i : f.listFiles()) {
+			 count++;			  
+			 result += count + " " + i.length() + "\n";
+		 }
+		 
+		 return result;
 	}
 	
-	 static String list(String secondPartCommand) {
-		// TODO Auto-generated method stub
-		return null;
+	 /**
+	  * liefert die Anzahl und die Größe der (n-ten) E-Mails.
+	  * @param secondPartCommand - (n-ten) E-Mails
+	  * @return
+	  */
+	static String list(String secondPartCommand) {
+		String exception = "-ERR invalid sequence number: " + secondPartCommand;
+		String result = ok + "\n";		
+		int count = 0;
+
+		try {			
+			int integer = Integer.parseInt(secondPartCommand);
+			for(File i : f.listFiles()) {
+				if (integer == ++count) {
+					result += integer + " " + i.length() + "\n";
+				}
+			}
+			
+			 if(integer > count)  {
+				 return exception; //Postcondition
+			 }
+
+		} catch (Exception e) {
+			return exception;
+		}
+
+		return result;
 	}
 
 	 /**
@@ -121,20 +188,18 @@ class POP3_Server_Commands {
 	  * @return result - fertiger String mit den oben genannten infos
 	  */
 	 static String stat()  {	
-		 String result = "";
+		 String result = ok + " ";
 		 int count = 0;
 		 int completeLengh = 0;
-		 
-		
-		for(File i : f.listFiles()) {
-			completeLengh += i.length();
+
+		for(Map.Entry<File, Integer> pair : emailMap.entrySet()) {
+			completeLengh += pair.getKey().length(); 
 			count ++;
 		}
 		
 		Integer c = new Integer(count);
 		String emailCount = c.toString();
 		
-		result += ok += " ";
 		result += emailCount += " ";		
 		result += completeLengh;
 		return result;
@@ -154,11 +219,25 @@ class POP3_Server_Commands {
 		return ok + " POP SERVER SIGNING OFF";
 	}
 	
+	 static void initializeEmailMap() {
+		 for(File i : f.listFiles()) {
+			 emailMap.put(i, ++emailNumber);
+		 }
+	 }
+	 
+	 static void deleteFile(File file) {
+		 emailMap.remove(file);
+		 file.delete();
+	 }
 	
 	//**************************** TEST *****************************
 	public static void main(String[] args) {
-		System.out.println(retr("$"));
-		System.out.println(retr("1"));
-//		System.out.println(stat());
+		initializeEmailMap(); //TODO: Verlagern
+		
+		System.out.println(list());
+		System.out.println(emailMap);
+		System.out.println(dele("2"));
+		
+		System.out.println(emailMap);
 	}
 }

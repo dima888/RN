@@ -52,7 +52,6 @@ class POP3Client {
 	private List<Info> infos = new ArrayList<>();
 	
 	/* Server, der Verbindungsanfragen entgegennimmt */
-	private Path dirPath = ServerAccountManagement.getDirPath(); //Pfad des verzeichnisses festlegen unter diesem werden die datein abgespeichert
 	
 	private DataOutputStream outToServer; //Ausgabestream zum Server 
 	private BufferedReader inFromServer; // Eingabestream vom Server
@@ -71,9 +70,9 @@ class POP3Client {
 		
 		//Verzeichnnis erstellen
 		try {
-			Files.createDirectory(dirPath);
+			Files.createDirectory(ServerAccountManagement.getDirPath());
 		} catch (IOException e) {
-			System.err.println("Verzeichnis existiert bereits unter " + dirPath.toString() + "!");
+			System.err.println("Verzeichnis existiert bereits unter " + ServerAccountManagement.getDirPath().toString() + "!");
 		}
 		
 		startePOP3_Client(); //Das abholen der Mails starten
@@ -145,7 +144,6 @@ class POP3Client {
 					//Ist die Anzahl != 0, dann wollen wir die Emails holen und abspeichern
 					//Schleife um alle Mails auszulesen und abzuspeichern
 					for(int j = 1; j <= anzahlDerEmails; j++) {
-						
 						//Befehl zum erhalten der Mail an den Server schicken
 						writeToServer("RETR " + j);
 						
@@ -161,7 +159,7 @@ class POP3Client {
 							String answer = "";
 							
 							answer += readFromServer();
-							System.out.println("ANTWORT: " + answer);
+							//System.out.println("ANTWORT: " + answer);
 							
 							puffer.add(answer);
 							
@@ -169,24 +167,28 @@ class POP3Client {
 							//SIEHE RN FOLIE 2 ab SEITE 26 BEISPIELE
 							if(answer.startsWith(".")) {
 								Scanner scanner = new Scanner(answer);
-								scanner.next(); //Auch der Punkt
+								scanner.nextLine(); //Auch der Punkt
 								
 								//überprüfen, ob nach dem Punkt noch etwas kommt
 								try {
 									scanner.next(); //Löst eine Exception aus, falls kein weiteres Element existiert
 								} catch(NoSuchElementException e) {
-									System.out.println("SCANNER HAT NACH DEM PUNKT NICHTS MEHR GEFUNDEN!");
+									//System.out.println("SCANNER HAT NACH DEM PUNKT NICHTS MEHR GEFUNDEN!");									
 									flag = false; //Schleife beenden, da Email komplett ausgelesen
 								}
 							}
 						}
 						//Email im Dateisystem abspeichern
 						speicherDieEmail(puffer, j);
+						
+						//abgeholte Mail löschen vom MAILSERVER
+						writeToServer("DELE " + j);
 					}
+					
 					//Verbindung wieder schließen
 					socket.close();
 					
-					System.out.println("Ich bin dann mal 30 Sekunden Schlafen !");
+					System.out.println("Client wartet 30 Sekunden mit dem erneuten abholen der Mails !");
 					Thread.currentThread().sleep(30_000);
 					System.out.println("Ich bin wieder erwacht und es kann weiter gehen !\n");
 					
@@ -259,8 +261,9 @@ class POP3Client {
 		
 		//Anzahl der ungelesenen Mails filtern
 		Scanner scanner = new Scanner(answerFromServer);
-		System.out.println("ANTWORT: " + answerFromServer );
+		
 		scanner.next(); //Zum überspringen des --> +OK
+		
 		//Beispiel: EINGABE --> LIST	AUSGABE DES SERVERS --> +OK 3 4070
 		String zahl = scanner.next();
 		result = Integer.parseInt(zahl);
@@ -276,7 +279,7 @@ class POP3Client {
 	 */
 	private void speicherDieEmail(List<String> email, int emailNummer) throws IOException {
 		//VerzeichnisPfad holen und Dateipfad dynamisch erzeugen
-		String path = dirPath.toFile().getAbsolutePath();
+		String path = ServerAccountManagement.getDirPath().toFile().getAbsolutePath();
 		path += "\\";
 		
 		//DateiPfad erzeugen
@@ -287,10 +290,10 @@ class POP3Client {
 		
 		//Zum schreiben in die Datei
 		FileWriter fw = new FileWriter(f);
-		
-		for(String zeile : email) {
-			//In die Datei schreiben
-			fw.write(zeile);
+
+		//Wir fangen bei erster Stelle an, da wir das +OK ueberspringen wollen
+		for(int i = 1; i < email.size(); i++) {
+			fw.write(email.get(i));
 		}
 		
 		//Den Writer schließen
