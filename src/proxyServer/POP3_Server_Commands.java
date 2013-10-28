@@ -20,9 +20,8 @@ class POP3_Server_Commands {
 
 	 static String ok = "+OK";
 	 static String err = "-ERR";
-	 static File f = new File(ServerAccountManagement.getDirPath2().toString());
-	 static int emailNumber = 0;
-	 static Map<File , Integer> emailMap = new HashMap<>();
+	 static File f = new File(ServerAccountManagement.getDirPath().toString());
+	
 	 
 	 //******************************** PRIVATER KONSTRUKTOR ******************************************
 	 
@@ -73,6 +72,8 @@ class POP3_Server_Commands {
 	   * @return
 	   */
 	 static String retr(String secondPartCommand) {
+		 Mail_Service currentMail = new Mail_Service();
+		 Map<File, Integer> emailMap = currentMail.getEmailMap();
 		 boolean exceptionFlag = true;
 		 String exception = "-ERR invalid sequence number: " + secondPartCommand;
 		 int count = 0;
@@ -104,8 +105,7 @@ class POP3_Server_Commands {
 	}
 
 	 static String noop() {
-		// TODO Auto-generated method stub
-		return null;
+		return ok;
 	}
 
 	 /**
@@ -114,6 +114,8 @@ class POP3_Server_Commands {
 	  * @return
 	  */
 	 static String dele(String secondPartCommand) {
+		 	Mail_Service currentMail = new Mail_Service();
+		 	Map<File, Integer> emailMap = currentMail.getEmailMap();
 		 	boolean exceptionFlag = true;
 			String exception = "-ERR invalid sequence number: " + secondPartCommand;
 			String result = ok + "\n";		
@@ -124,7 +126,10 @@ class POP3_Server_Commands {
 				
 				for(Map.Entry<File, Integer> pair : emailMap.entrySet()) {
 					if (integer == pair.getValue()) {
-						deleteFile(pair.getKey());					
+						//deleteFile(pair.getKey());
+						pair.getKey().delete();
+						emailMap.remove(pair);
+						exceptionFlag = false;
 					}
 				}
 				
@@ -144,14 +149,18 @@ class POP3_Server_Commands {
 	  * @return
 	  */
 	 static String list() {
-		 int count = 0;
-		 String result = ok + "\n";
-		 for(File i : f.listFiles()) {
-			 count++;			  
-			 result += count + " " + i.length() + "\n";
-		 }
+		 Mail_Service currentMail = new Mail_Service();
+		 Map<File, Integer> emailMap = currentMail.getEmailMap();
 		 
-		 return result;
+
+		 String result = ok + "\n";
+		 
+		for(Map.Entry<File, Integer> pair : emailMap.entrySet()) {
+			result += pair.getValue() + " " + pair.getKey().length() + "\n"; 
+		}
+		
+		 
+		 return result + '.';
 	}
 	
 	 /**
@@ -160,19 +169,24 @@ class POP3_Server_Commands {
 	  * @return
 	  */
 	static String list(String secondPartCommand) {
+		Mail_Service currentMail = new Mail_Service();
+		Map<File, Integer> emailMap = currentMail.getEmailMap();
 		String exception = "-ERR invalid sequence number: " + secondPartCommand;
 		String result = ok + "\n";		
-		int count = 0;
+		boolean exceptionFlag = true;
 
 		try {			
 			int integer = Integer.parseInt(secondPartCommand);
-			for(File i : f.listFiles()) {
-				if (integer == ++count) {
-					result += integer + " " + i.length() + "\n";
+
+				
+			for(Map.Entry<File, Integer> pair : emailMap.entrySet()) {
+				if(integer == pair.getValue()) {
+					result += pair.getValue() + " " + pair.getKey().length() + "\n"; 
+					exceptionFlag = false;
 				}
 			}
 			
-			 if(integer > count)  {
+			 if(exceptionFlag)  {
 				 return exception; //Postcondition
 			 }
 
@@ -180,7 +194,7 @@ class POP3_Server_Commands {
 			return exception;
 		}
 
-		return result;
+		return result + '.';
 	}
 
 	 /**
@@ -188,6 +202,8 @@ class POP3_Server_Commands {
 	  * @return result - fertiger String mit den oben genannten infos
 	  */
 	 static String stat()  {	
+		 Mail_Service currentMail = new Mail_Service();
+		 Map<File, Integer> emailMap = currentMail.getEmailMap();
 		 String result = ok + " ";
 		 int count = 0;
 		 int completeLengh = 0;
@@ -219,25 +235,10 @@ class POP3_Server_Commands {
 		return ok + " POP SERVER SIGNING OFF";
 	}
 	
-	 static void initializeEmailMap() {
-		 for(File i : f.listFiles()) {
-			 emailMap.put(i, ++emailNumber);
-		 }
-	 }
-	 
-	 static void deleteFile(File file) {
-		 emailMap.remove(file);
-		 file.delete();
-	 }
-	
 	//**************************** TEST *****************************
 	public static void main(String[] args) {
-		initializeEmailMap(); //TODO: Verlagern
+		Mail_Service m = new Mail_Service();
 		
-		System.out.println(list());
-		System.out.println(emailMap);
-		System.out.println(dele("2"));
-		
-		System.out.println(emailMap);
+		System.out.println(POP3_Server_Commands.retr("2"));
 	}
 }

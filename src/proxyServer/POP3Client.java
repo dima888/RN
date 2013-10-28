@@ -309,4 +309,5 @@ class POP3Client {
 	private String readFromServer() throws IOException {
 		return inFromServer.readLine() + '\n';
 	}
+	
 }

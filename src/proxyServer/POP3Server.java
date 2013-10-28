@@ -17,7 +17,7 @@ class POP3Server {
 	//*********************** ATTRIBUTE *****************************
 	
 	/* Server, der Verbindungsanfragen entgegennimmt */
-	private static final int SERVER_PORT = 110; // Auf diesen Port wird "gelauscht"
+	private static final int SERVER_PORT = 11000; // Auf diesen Port wird "gelauscht"
 	private static Path dirPath = ServerAccountManagement.getDirPath(); // angabe des Pfades zum Verzeichnis, in welchem die Datein liegen
 	private static int count = 0; // soll für uns die Clientanzahl zählen, die sich mit diesem Server verbunden hat
 	

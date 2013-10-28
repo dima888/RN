@@ -40,5 +40,6 @@ public class ProxyServerStart {
 		//ProxyServer starten
 		//proxyServer.starteServer();
 		proxyServer.starteClient("foxhound");
+		
 	}	
 }
