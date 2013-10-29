@@ -3,14 +3,10 @@ package proxyServer;
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-
-import javax.swing.text.html.parser.Parser;
 
 /**
  * Proconditions, fuer die Korrekte Schreibweise von Client an den Server
@@ -38,7 +34,6 @@ class POP3_Server_Commands {
 	 public POP3_Server_Commands(Path dirPath) {
 		 this.dirPath = dirPath;
 		 f = new File(dirPath.toString());
-		 aktualisieren();
 	 }
 	 
 	 //***************** GETTER ********************

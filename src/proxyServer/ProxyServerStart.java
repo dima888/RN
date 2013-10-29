@@ -19,7 +19,7 @@ public class ProxyServerStart {
 	 * @param SERVER_PORT - Port des Servers
 	 */
 	
-	private POP3_Server_Commands server_commands = new POP3_Server_Commands(Paths.get("C:\\Users\\dima\\Desktop\\Emails"));
+	private POP3_Server_Commands server_commands = new POP3_Server_Commands(Paths.get("C:\\Users\\Sony\\Desktop\\Emails"));
 	
 	public void starteClient(String clientName) {
 		POP3Client client = new POP3Client(clientName, server_commands);
@@ -42,7 +42,6 @@ public class ProxyServerStart {
 		
 		//ProxyServer starten
 		proxyServer.starteServer();
-		//proxyServer.starteClient("foxhound");
-		
+		proxyServer.starteClient("foxhound");
 	}	
 }

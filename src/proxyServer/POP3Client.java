@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +67,6 @@ class POP3Client {
 	 */
 	POP3Client(String clientName, POP3_Server_Commands server_commands) {
 		this.clientName = clientName;
-		this.server_commands = server_commands;
 		
 		getInfos(); //Zu dem übergebnen clientName die Konten heraus suchen
 		
@@ -78,6 +76,8 @@ class POP3Client {
 		} catch (IOException e) {
 			System.err.println("Verzeichnis existiert bereits unter " + server_commands.getDirPath().toString() + "!");
 		}
+		
+		this.server_commands = server_commands;
 		
 		startePOP3_Client(); //Das abholen der Mails starten
 	}
