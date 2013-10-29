@@ -17,7 +17,7 @@ class POP3Server {
 	//*********************** ATTRIBUTE *****************************
 	
 	/* Server, der Verbindungsanfragen entgegennimmt */
-	private static final int SERVER_PORT = 11000; // Auf diesen Port wird "gelauscht"
+	private static final int SERVER_PORT = 11001; // Auf diesen Port wird "gelauscht"
 	
 	//Anmeldedaten für genau einen Clienten in beispielsweise Thunderbird
 //	private final String USER = "flah";
@@ -145,11 +145,13 @@ class POP3Server {
 					}
 					
 					while(true) {
-						checkAllCommand(readFromClient());
+						String answer = checkAllCommand(readFromClient());
+						writeToClient(answer);
 					}
 
 			} catch (IOException e) {
-				System.out.println(e.toString() + "AAA");
+				//System.out.println(e.toString() + "AAA");
+				return;
 			}
 
 		}
@@ -162,9 +164,7 @@ class POP3Server {
 		 */
 		private String readFromClient() throws IOException {
 			String request = "";
-			System.out.println("VOR EINLESEN");
 			request = inFromClient.readLine() + "\n" ;
-			System.out.println("NACH EINLESEN");
 			System.out.println("TCP Server sending to Thread: " + threadNumber  + " :" + request);
 			return request;
 		}
