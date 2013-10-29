@@ -18,8 +18,6 @@ class POP3Server {
 	
 	/* Server, der Verbindungsanfragen entgegennimmt */
 	private static final int SERVER_PORT = 11000; // Auf diesen Port wird "gelauscht"
-	private static Path dirPath = ServerAccountManagement.getDirPath(); // angabe des Pfades zum Verzeichnis, in welchem die Datein liegen
-	private static int count = 0; // soll für uns die Clientanzahl zählen, die sich mit diesem Server verbunden hat
 	
 	//Anmeldedaten für genau einen Clienten in beispielsweise Thunderbird
 //	private final String USER = "flah";
@@ -28,8 +26,7 @@ class POP3Server {
 	private static final String USER = "dima888@gmx.net"; //foxhound
 	private static final String PASS = "12345678";
 	
-	POP3_Server_Commands server_commands = new POP3_Server_Commands();
-	
+	POP3_Server_Commands server_commands;	
 	
 	// *********************GETTER**********************
 	
@@ -43,9 +40,9 @@ class POP3Server {
 	
 	//********************** KONSTRUKTOR *****************************	
 	
-	POP3Server(Path dirPath, POP3_Server_Commands server_commands) {
-		this.dirPath = dirPath;
+	POP3Server(POP3_Server_Commands server_commands) {
 		this.server_commands = server_commands;
+		startePOP3_Server();
 	}
 	
 	//*********************** METHODEN *******************************	
@@ -68,7 +65,7 @@ class POP3Server {
 				connectionSocket = welcomeSocket.accept();
 				
 				// Neuen Arbeits-Thread erzeugen und starten mit übergebenen Socket
-				(new POP3_Server_Thread(connectionSocket, dirPath)).start();
+				(new POP3_Server_Thread(connectionSocket, server_commands.getDirPath())).start();
 			}
 			
 		} catch (IOException e) {
@@ -98,7 +95,6 @@ class POP3Server {
 			this.socket = socket;
 			this.path = path;
 			this.threadNumber ++;
-			
 		}		
 		
 		//************************* SUPER METHODE; PRUEFT OB BEFEHL LAUT RFC 1939 DEFINIERT IST ***********************		 
@@ -148,12 +144,13 @@ class POP3Server {
 				writeToClient("+OK Welcome");
 				
 				String request = readFromClient();
-				System.out.println(request);	
+				System.out.println("Anfrage von CLient" + request);	
 				
-				writeToClient(err);
 				
-				request = readFromClient();
-				System.out.println(request);
+				//writeToClient(err);
+				
+//				request = readFromClient();
+//				System.out.println(request);
 				
 					while(authentication()) {
 						
@@ -164,6 +161,7 @@ class POP3Server {
 					request = readFromClient();
 					System.out.println(request);
 					
+					checkAllCommand(request);
 					
 				    request = readFromClient();
 					System.out.println(request + "Request");
@@ -183,7 +181,9 @@ class POP3Server {
 		 */
 		private String readFromClient() throws IOException {
 			String request = "";
+			System.out.println("VOR EINLESEN");
 			request = inFromClient.readLine() + "\n" ;
+			System.out.println("NACH EINLESEN");
 			System.out.println("TCP Server sending to Thread: " + threadNumber  + " :" + request);
 			return request;
 		}

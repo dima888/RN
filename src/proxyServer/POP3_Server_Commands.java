@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -18,17 +20,24 @@ import javax.swing.text.html.parser.Parser;
 
 class POP3_Server_Commands {
 
-	  static String ok = "+OK";
-	  static String err = "-ERR";
-	  File f = new File(ServerAccountManagement.getDirPath().toString());
+	  final String ok = "+OK";
+	  final String err = "-ERR";
 	  
-	  static int emailNumber = 0;
+	  //static int emailNumber = 0;
 	  private Map<File , Integer> emailMap = new HashMap<>();
 	  private Map<File , Integer> deletedMails = new HashMap<>();
+	  
+	  // PFad zum Verzeichnis, in dem wir die Emails speichern möchten -->
+	  // erstellt für uns ein Verzeichnis
+	  private Path dirPath;
+
+	  File f;
 	 
 	 //******************************** PRIVATER KONSTRUKTOR ******************************************
 	 
-	 public POP3_Server_Commands() {
+	 public POP3_Server_Commands(Path dirPath) {
+		 this.dirPath = dirPath;
+		 f = new File(dirPath.toString());
 		 getMails();
 	 }
 	 
@@ -36,7 +45,10 @@ class POP3_Server_Commands {
 	public Map<File , Integer> getEmailMap() {
 		return emailMap;
 	}
-		
+	
+	public Path getDirPath() {
+		return dirPath;
+	}
 	
 	//************************* RFC 1939 METHODS *****************************
 	
@@ -283,9 +295,9 @@ class POP3_Server_Commands {
 	//**************************** TEST *****************************
 	public static void main(String[] args) {
 		
-		POP3_Server_Commands server_commands = new POP3_Server_Commands();
-		System.out.println(server_commands.dele("2"));
-		System.out.println(server_commands.quit(null));
+//		POP3_Server_Commands server_commands = new POP3_Server_Commands(Paths.get("C:\\Users\\abg688\\Desktop\\Emails"));
+//		System.out.println(server_commands.dele("2"));
+//		System.out.println(server_commands.quit(null));
 		
 	}
 }

@@ -58,7 +58,7 @@ class POP3Client {
 
 	private boolean serviceRequested = true; // Client läuft solange true
 	
-	POP3_Server_Commands server_commands = new POP3_Server_Commands();
+	POP3_Server_Commands server_commands;
 
 	//********************** KONSTRUKTOR *****************************
 	
@@ -74,9 +74,9 @@ class POP3Client {
 		
 		//Verzeichnnis erstellen
 		try {
-			Files.createDirectory(ServerAccountManagement.getDirPath());
+			Files.createDirectory(server_commands.getDirPath());
 		} catch (IOException e) {
-			System.err.println("Verzeichnis existiert bereits unter " + ServerAccountManagement.getDirPath().toString() + "!");
+			System.err.println("Verzeichnis existiert bereits unter " + server_commands.getDirPath().toString() + "!");
 		}
 		
 		startePOP3_Client(); //Das abholen der Mails starten
@@ -289,7 +289,7 @@ class POP3Client {
 	 */
 	private void speicherDieEmail(List<String> email, int emailNummer) throws IOException {
 		//VerzeichnisPfad holen und Dateipfad dynamisch erzeugen
-		String path = ServerAccountManagement.getDirPath().toFile().getAbsolutePath();
+		String path = server_commands.getDirPath().toFile().getAbsolutePath();
 		path += "\\";
 		
 		//DateiPfad erzeugen
