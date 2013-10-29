@@ -38,7 +38,6 @@ class POP3_Server_Commands {
 	 public POP3_Server_Commands(Path dirPath) {
 		 this.dirPath = dirPath;
 		 f = new File(dirPath.toString());
-		 aktualisieren();
 	 }
 	 
 	 //***************** GETTER ********************
@@ -75,7 +74,7 @@ class POP3_Server_Commands {
 	 */
 	   String password(String secondPartCommand) {
 		if(POP3Server.getPassword().compareTo(secondPartCommand) == 0) {
-			System.out.println("PASSWORT akzeptiert");
+			System.out.println("PASSWORD accept");
 			return ok;
 		}
 		return err;

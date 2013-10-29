@@ -39,10 +39,11 @@ public class ProxyServerStart {
 		//*************************************************************************************************************************************************
 		//ProxyServer erstellen
 		ProxyServerStart proxyServer = new ProxyServerStart();
+	
 		
-		//ProxyServer starten
-		proxyServer.starteServer();
 		//proxyServer.starteClient("foxhound");
+		
+		proxyServer.starteServer();
 		
 	}	
 }
