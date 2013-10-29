@@ -95,8 +95,7 @@ class POP3_Server_Commands {
 	 */
 	String retr(String secondPartCommand) {
 		boolean exceptionFlag = true;
-		String exception = "-ERR invalid sequence number: " + secondPartCommand;
-		int count = 0;
+		String exception = "-ERR invalid sequence number: " + secondPartCommand + "\r\n";
 		String result = ok + "\n";
 		try {
 			int integer = Integer.parseInt(secondPartCommand);
@@ -107,7 +106,7 @@ class POP3_Server_Commands {
 					// Datei auslesen
 					Scanner scanner = new Scanner(pair.getKey());
 					while (scanner.hasNextLine()) {
-						result += scanner.nextLine() + "\n";
+						result += scanner.nextLine() + "\r\n";
 					}
 					scanner.close();
 				}
@@ -121,7 +120,7 @@ class POP3_Server_Commands {
 			return exception;
 		}
 
-		return result;
+		return result + "\r\n";
 	}
 
 	String noop() {
@@ -136,29 +135,30 @@ class POP3_Server_Commands {
 	 */
 	String dele(String secondPartCommand) {
 		boolean exceptionFlag = true;
-		String exception = "-ERR invalid sequence number: " + secondPartCommand;
-		String result = ok + "\n";
+		String exception = "-ERR invalid sequence number: " + secondPartCommand + "\r\n";
+		String result = ok + "\r\n";
 
 		try {
 
+			System.out.println("INHALT VON PARAMETER:" + secondPartCommand);
 			int integer = Integer.parseInt(secondPartCommand);
 			for (Map.Entry<File, Integer> pair : emailMap.entrySet()) {
 				if (integer == pair.getValue()) {
 					exceptionFlag = false;
-					emailMap.remove(pair);
+					emailMap.remove(pair.getKey());
 					deletedMails.put(pair.getKey(), pair.getValue());
 				}
 			}
 
 		} catch (Exception e) {
-			return exception;
+			//return exception;
 		}
 
 		if (exceptionFlag) {
 			return exception; // Postcondition
 		}
 
-		return result;
+		return result + "\r\n";
 	}
 
 	 /**
@@ -166,14 +166,14 @@ class POP3_Server_Commands {
 	  * @return
 	  */
 	  String list() {
-		 String result = ok + "\n";
+		 String result = ok + "\r\n";
 		 
 		for(Map.Entry<File, Integer> pair : emailMap.entrySet()) {
-			result += pair.getValue() + " " + pair.getKey().length() + "\n"; 
+			result += pair.getValue() + " " + pair.getKey().length() + "\r\n"; 
 		}
 		
 		 
-		 return result + '.';
+		 return result + ".\r\n";
 	}
 	
 	 /**
@@ -182,7 +182,7 @@ class POP3_Server_Commands {
 	  * @return
 	  */
 	 String list(String secondPartCommand) {
-		String exception = "-ERR invalid sequence number: " + secondPartCommand;
+		String exception = "-ERR invalid sequence number:" + secondPartCommand + "\r\n";
 		String result = ok + "\n";		
 		boolean exceptionFlag = true;
 
@@ -192,7 +192,7 @@ class POP3_Server_Commands {
 				
 			for(Map.Entry<File, Integer> pair : emailMap.entrySet()) {
 				if(integer == pair.getValue()) {
-					result += pair.getValue() + " " + pair.getKey().length() + "\n"; 
+					result += pair.getValue() + " " + pair.getKey().length() + "\r\n"; 
 					exceptionFlag = false;
 				}
 			}
@@ -205,7 +205,7 @@ class POP3_Server_Commands {
 			return exception;
 		}
 
-		return result + '.';
+		return result + ".\r\n";
 	}
 
 	 /**
@@ -213,7 +213,7 @@ class POP3_Server_Commands {
 	  * @return result - fertiger String mit den oben genannten infos
 	  */
 	  String stat()  {	 
-		 String result = ok + " ";
+		 String result = ok + "\r\n";
 		 int count = 0;
 		 int completeLengh = 0;
 
@@ -226,7 +226,7 @@ class POP3_Server_Commands {
 		String emailCount = c.toString();
 		
 		result += emailCount += " ";		
-		result += completeLengh;
+		result += completeLengh + "\r\n";
 		return result;
 	}
 

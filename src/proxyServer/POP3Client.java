@@ -42,7 +42,7 @@ import proxyServer.ServerAccountManagement.Info;
  * Zeile 5 ausgelesen.
  *************************************************************************************************************************/
 
-class POP3Client {
+class POP3Client extends Thread{
 	
 	//*********************** ATTRIBUTE *****************************
 	
@@ -79,10 +79,15 @@ class POP3Client {
 		
 		this.server_commands = server_commands;
 		
-		startePOP3_Client(); //Das abholen der Mails starten
+		//startePOP3_Client(); //Das abholen der Mails starten
 	}
 	
 	//*********************** METHODEN *******************************
+	
+	@Override
+	public void run() {
+		startePOP3_Client();
+	}
 	
 	/**
 	 * Beschafft die Kontoinformationen zu dem im Konstruktor übergebenen clientName
