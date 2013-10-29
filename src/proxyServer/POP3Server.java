@@ -137,21 +137,9 @@ class POP3Server {
 				/* Socket-Basisstreams durch spezielle Streams filtern */
 				inFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				outToClient = new DataOutputStream(socket.getOutputStream());
-								
-
-//				while (serviceRequested) {
 				
-				writeToClient("+OK Welcome");
-				
-				String request = readFromClient();
-				System.out.println("Anfrage von CLient" + request);	
-				
-				
-				//writeToClient(err);
-				
-//				request = readFromClient();
-//				System.out.println(request);
-				
+				writeToClient("+OK Welcome\n");
+			
 					while(authentication()) {
 						
 					}
@@ -159,17 +147,6 @@ class POP3Server {
 					while(true) {
 						checkAllCommand(readFromClient());
 					}
-					
-//					System.out.println("Authentication erfolgreich");			
-//					
-//					request = readFromClient();
-//					System.out.println(request);
-//					
-//					checkAllCommand(request);
-//					
-//				    request = readFromClient();
-//					System.out.println(request + "Request");
-//				}
 
 			} catch (IOException e) {
 				System.out.println(e.toString() + "AAA");
@@ -203,18 +180,15 @@ class POP3Server {
 		}		
 		
 		private boolean authentication() throws IOException {
-			System.out.println(readFromClient());
-			System.out.println("authentication Method betretten");
-			if(checkAllCommand(readFromClient()).compareTo(ok) == 0) {
-				System.out.println("authentication Username");
-				writeToClient(ok + " Username accepted, password please");
+			if(checkAllCommand(readFromClient()).compareTo(ok) == 0) {;
+				writeToClient(ok + " Username accepted, password please\r\n");
 				if(checkAllCommand(readFromClient()).compareTo(ok) == 0) {
-					System.out.println("authentication Password");
-					writeToClient(ok + " Password accept");
+					writeToClient(ok + " Password accept\r\n");
+					writeToClient("authentication accept\r\n");
 					return false;
 				}
 			}
-		System.out.println("Verlasse authentication Method erfolglos");
+			writeToClient("authentication is fail\r\n");
 			return true;
 		}
 	}

@@ -70,7 +70,7 @@ class POP3_Server_Commands {
 	 */
 	   String password(String secondPartCommand) {
 		if(POP3Server.getPassword().compareTo(secondPartCommand) == 0) {
-			System.out.println("PASSWORT akzeptiert");
+			System.out.println("PASSWORD accept");
 			return ok;
 		}
 		return err;
