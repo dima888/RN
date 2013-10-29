@@ -18,12 +18,15 @@ public class ProxyServerStart {
 	 * @param IP - IP des Servers
 	 * @param SERVER_PORT - Port des Servers
 	 */
+	
+	private POP3_Server_Commands server_commands = new POP3_Server_Commands();
+	
 	public void starteClient(String clientName) {
-		POP3Client client = new POP3Client(clientName);
+		POP3Client client = new POP3Client(clientName, server_commands);
 	}
 	
 	public void starteServer() {
-		POP3Server server = new POP3Server(Paths.get("")); //PFAD angeben
+		POP3Server server = new POP3Server(Paths.get(""), server_commands); //PFAD angeben
 	}
 	
 	public static void main(String[] args) {

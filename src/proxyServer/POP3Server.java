@@ -28,6 +28,8 @@ class POP3Server {
 	private static final String USER = "dima888@gmx.net"; //foxhound
 	private static final String PASS = "12345678";
 	
+	POP3_Server_Commands server_commands = new POP3_Server_Commands();
+	
 	
 	// *********************GETTER**********************
 	
@@ -41,8 +43,9 @@ class POP3Server {
 	
 	//********************** KONSTRUKTOR *****************************	
 	
-	POP3Server(Path dirPath) {
+	POP3Server(Path dirPath, POP3_Server_Commands server_commands) {
 		this.dirPath = dirPath;
+		this.server_commands = server_commands;
 	}
 	
 	//*********************** METHODEN *******************************	
@@ -112,16 +115,16 @@ class POP3Server {
 			 
 			 switch(firstPartCommand.toLowerCase()) {
 			 //{user, pass, quit, stat, list, retr, dele, noop, rset}
-			 case "user" : return POP3_Server_Commands.user(secondPartCommand); 
-			 case "pass" : return POP3_Server_Commands.password(secondPartCommand); 
-			 case "quit" : return POP3_Server_Commands.quit(socket);
-			 case "stat" : return POP3_Server_Commands.stat(); 
-			 case "list" : if(secondPartCommand.isEmpty()) {return POP3_Server_Commands.list();} else {return POP3_Server_Commands.list(secondPartCommand);}
-			 case "retr" : return POP3_Server_Commands.retr(secondPartCommand); 
-			 case "dele" : return POP3_Server_Commands.dele(secondPartCommand); 
-			 case "noop" : return POP3_Server_Commands.noop(); 
-			 case "rset" : return POP3_Server_Commands.rset(); 
-			 default: return POP3_Server_Commands.err;
+			 case "user" : return server_commands.user(secondPartCommand); 
+			 case "pass" : return server_commands.password(secondPartCommand); 
+			 case "quit" : return server_commands.quit(socket);
+			 case "stat" : return server_commands.stat(); 
+			 case "list" : if(secondPartCommand.isEmpty()) {return server_commands.list();} else {return server_commands.list(secondPartCommand);}
+			 case "retr" : return server_commands.retr(secondPartCommand); 
+			 case "dele" : return server_commands.dele(secondPartCommand); 
+			 case "noop" : return server_commands.noop(); 
+			 case "rset" : return server_commands.rset(); 
+			 default: return server_commands.err;
 			 
 			 }		
 		}
@@ -214,7 +217,7 @@ class POP3Server {
 	
 	//********************** TEST *********************
 	public static void main(String[] args) {
-		POP3Server server = new POP3Server(dirPath);
-		server.startePOP3_Server();
+		//POP3Server server = new POP3Server(dirPath);
+//		server.startePOP3_Server();
 	}
 }

@@ -18,16 +18,24 @@ import javax.swing.text.html.parser.Parser;
 
 class POP3_Server_Commands {
 
-	 static String ok = "+OK";
-	 static String err = "-ERR";
-	 static File f = new File(ServerAccountManagement.getDirPath().toString());
-	
+	  static String ok = "+OK";
+	  static String err = "-ERR";
+	  File f = new File(ServerAccountManagement.getDirPath().toString());
+	  
+	  static int emailNumber = 0;
+	  private Map<File , Integer> emailMap = new HashMap<>();
+	  private Map<File , Integer> deletedMails = new HashMap<>();
 	 
 	 //******************************** PRIVATER KONSTRUKTOR ******************************************
 	 
-	 private POP3_Server_Commands() {
-		 //Nicht möglich Objekte von außen zu erzeugen !
+	 public POP3_Server_Commands() {
+		 getMails();
 	 }
+	 
+	 //***************** GETTER ********************
+	public Map<File , Integer> getEmailMap() {
+		return emailMap;
+	}
 		
 	
 	//************************* RFC 1939 METHODS *****************************
@@ -38,7 +46,7 @@ class POP3_Server_Commands {
 	 * @param userName - Example: POP3Server.USER
 	 * @return
 	 */
-	  static String user(String secondPartCommand) {
+	   String user(String secondPartCommand) {
 			if (POP3Server.getUser().compareTo(secondPartCommand) == 0) {
 				System.out.println("USER akzeptiert");
 				return ok;
@@ -53,7 +61,7 @@ class POP3_Server_Commands {
 	 * @param userPassword - Example: POP3Server.PASS
 	 * @return
 	 */
-	  static String password(String secondPartCommand) {
+	   String password(String secondPartCommand) {
 		if(POP3Server.getPassword().compareTo(secondPartCommand) == 0) {
 			System.out.println("PASSWORT akzeptiert");
 			return ok;
@@ -61,98 +69,96 @@ class POP3_Server_Commands {
 		return err;
 	}	
 	 
-	  static String rset() {
-		// TODO Auto-generated method stub
-		return null;
+	String rset() {
+		
+		for(Map.Entry<File, Integer> pair : deletedMails.entrySet()) {
+			emailMap.put(pair.getKey(), pair.getValue());
+			deletedMails.remove(pair.getKey());
+		}
+
+		return ok;
 	}
 	 
-	  /** TODO: DAT MACHT AUCH DIMA; SCHON HIER ANGFANGEN: Hier noch auf die Punkte(. || .. || .) achten
-	   * Holt die n-te E-Mail vom E-Mail-Server
-	   * @param secondPartCommand
-	   * @return
-	   */
-	 static String retr(String secondPartCommand) {
-		 Mail_Service currentMail = new Mail_Service();
-		 Map<File, Integer> emailMap = currentMail.getEmailMap();
-		 boolean exceptionFlag = true;
-		 String exception = "-ERR invalid sequence number: " + secondPartCommand;
-		 int count = 0;
-		 String result = ok + "\n";
-		 try {
-			 int integer = Integer.parseInt(secondPartCommand);
+	/**
+	 * TODO: DAT MACHT AUCH DIMA; SCHON HIER ANGFANGEN: Hier noch auf die
+	 * Punkte(. || .. || .) achten Holt die n-te E-Mail vom E-Mail-Server
+	 * 
+	 * @param secondPartCommand
+	 * @return
+	 */
+	String retr(String secondPartCommand) {
+		boolean exceptionFlag = true;
+		String exception = "-ERR invalid sequence number: " + secondPartCommand;
+		int count = 0;
+		String result = ok + "\n";
+		try {
+			int integer = Integer.parseInt(secondPartCommand);
 
-				for(Map.Entry<File, Integer> pair : emailMap.entrySet()) {
-					if(integer == pair.getValue()) {
-						 exceptionFlag = false;
-						 //Datei auslesen
-						 Scanner scanner = new Scanner(pair.getKey());
-						 while(scanner.hasNextLine()) {
-							 result += scanner.nextLine() + "\n";
-						 }
-						 scanner.close();
+			for (Map.Entry<File, Integer> pair : emailMap.entrySet()) {
+				if (integer == pair.getValue()) {
+					exceptionFlag = false;
+					// Datei auslesen
+					Scanner scanner = new Scanner(pair.getKey());
+					while (scanner.hasNextLine()) {
+						result += scanner.nextLine() + "\n";
 					}
+					scanner.close();
 				}
-			 
-			 if(exceptionFlag)  {
-				 return exception; //Postcondition
-			 }
-			 
+			}
+
+			if (exceptionFlag) {
+				return exception; // Postcondition
+			}
+
 		} catch (Exception e) {
 			return exception;
 		}
-		 
+
 		return result;
 	}
 
-	 static String noop() {
+	String noop() {
 		return ok;
 	}
+	  
 
-	 /**
-	  * löscht die n-te E-Mail am E-Mail-Server.
-	  * @param secondPartCommand
-	  * @return
-	  */
-	 static String dele(String secondPartCommand) {
-		 	Mail_Service currentMail = new Mail_Service();
-		 	Map<File, Integer> emailMap = currentMail.getEmailMap();
-		 	boolean exceptionFlag = true;
-			String exception = "-ERR invalid sequence number: " + secondPartCommand;
-			String result = ok + "\n";		
-			int count = 0;			
+	/**
+	 * markiert die n-te E-Mail am E-Mail-Server.
+	 * @param secondPartCommand
+	 * @return
+	 */
+	String dele(String secondPartCommand) {
+		boolean exceptionFlag = true;
+		String exception = "-ERR invalid sequence number: " + secondPartCommand;
+		String result = ok + "\n";
 
-			try {			
-				int integer = Integer.parseInt(secondPartCommand);
-				
-				for(Map.Entry<File, Integer> pair : emailMap.entrySet()) {
-					if (integer == pair.getValue()) {
-						//deleteFile(pair.getKey());
-						pair.getKey().delete();
-						emailMap.remove(pair);
-						exceptionFlag = false;
-					}
+		try {
+
+			int integer = Integer.parseInt(secondPartCommand);
+			for (Map.Entry<File, Integer> pair : emailMap.entrySet()) {
+				if (integer == pair.getValue()) {
+					exceptionFlag = false;
+					emailMap.remove(pair);
+					deletedMails.put(pair.getKey(), pair.getValue());
 				}
-				
-				 if(exceptionFlag)  {
-					 return exception; //Postcondition
-				 }
-
-			} catch (Exception e) {
-				return exception;
 			}
 
-			return result;
+		} catch (Exception e) {
+			return exception;
+		}
+
+		if (exceptionFlag) {
+			return exception; // Postcondition
+		}
+
+		return result;
 	}
 
 	 /**
 	  * liefert die Anzahl und die Größe der (n-ten) E-Mails.
 	  * @return
 	  */
-	 static String list() {
-		 Mail_Service currentMail = new Mail_Service();
-		 Map<File, Integer> emailMap = currentMail.getEmailMap();
-		 
-
+	  String list() {
 		 String result = ok + "\n";
 		 
 		for(Map.Entry<File, Integer> pair : emailMap.entrySet()) {
@@ -168,9 +174,7 @@ class POP3_Server_Commands {
 	  * @param secondPartCommand - (n-ten) E-Mails
 	  * @return
 	  */
-	static String list(String secondPartCommand) {
-		Mail_Service currentMail = new Mail_Service();
-		Map<File, Integer> emailMap = currentMail.getEmailMap();
+	 String list(String secondPartCommand) {
 		String exception = "-ERR invalid sequence number: " + secondPartCommand;
 		String result = ok + "\n";		
 		boolean exceptionFlag = true;
@@ -201,9 +205,7 @@ class POP3_Server_Commands {
 	  * Liefert den Status der Mailbox, u.a. die Anzahl aller E-Mails im Postfach und deren Gesamtgröße (in Byte).
 	  * @return result - fertiger String mit den oben genannten infos
 	  */
-	 static String stat()  {	
-		 Mail_Service currentMail = new Mail_Service();
-		 Map<File, Integer> emailMap = currentMail.getEmailMap();
+	  String stat()  {	 
 		 String result = ok + " ";
 		 int count = 0;
 		 int completeLengh = 0;
@@ -226,7 +228,13 @@ class POP3_Server_Commands {
 	  * @param socket
 	  * @return
 	  */
-	 static String quit(Socket socket) {
+	  String quit(Socket socket) {
+		  
+		for (Map.Entry<File, Integer> pair : deletedMails.entrySet()) {
+			pair.getKey().delete();
+			deletedMails.remove(pair);
+		}
+		  
 		try {
 			socket.close();
 		} catch (IOException e) {
@@ -235,10 +243,49 @@ class POP3_Server_Commands {
 		return ok + " POP SERVER SIGNING OFF";
 	}
 	
+	  
+	  //******************************* HILFS METHODEN ******************************
+		public Map<File, Integer> getDeletedMails() {
+			return deletedMails;
+		}
+		
+		public void aktualisieren() {
+			getMails();
+		}
+		
+		/**
+		 * Löscht die Mails vom Server, wenn der Quit Befehl eingegeben wird
+		 * @param mail
+		 */
+		void deleteMail(File mail) {
+			for(Map.Entry<File, Integer> pair : emailMap.entrySet()) {
+				if(pair.getKey() == mail) {
+					emailMap.remove(pair);
+				}
+			}
+		}
+		
+	private void getMails() {
+		for (File i : f.listFiles()) {
+			char[] puffer = i.getName().toCharArray();
+			String result = "";
+			for (int j = 6; j < puffer.length; j++) {
+				if (puffer[j] == '.') {
+					break;
+				} else {
+					result += puffer[j];
+				}
+			}
+			emailMap.put(i, Integer.parseInt(result));
+		}
+	}
+	  
 	//**************************** TEST *****************************
 	public static void main(String[] args) {
-		Mail_Service m = new Mail_Service();
 		
-		System.out.println(POP3_Server_Commands.retr("2"));
+		POP3_Server_Commands server_commands = new POP3_Server_Commands();
+		System.out.println(server_commands.dele("2"));
+		System.out.println(server_commands.quit(null));
+		
 	}
 }

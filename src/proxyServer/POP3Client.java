@@ -57,6 +57,8 @@ class POP3Client {
 	private BufferedReader inFromServer; // Eingabestream vom Server
 
 	private boolean serviceRequested = true; // Client läuft solange true
+	
+	POP3_Server_Commands server_commands = new POP3_Server_Commands();
 
 	//********************** KONSTRUKTOR *****************************
 	
@@ -64,8 +66,10 @@ class POP3Client {
 	 * "AUTOMATISIERTER KONSTRUKTOR" --> Beim erstellen eines Objektes wird alles weitere automatisch ausgeführt
 	 * @param clientName
 	 */
-	POP3Client(String clientName) {
+	POP3Client(String clientName, POP3_Server_Commands server_commands) {
 		this.clientName = clientName;
+		this.server_commands = server_commands;
+		
 		getInfos(); //Zu dem übergebnen clientName die Konten heraus suchen
 		
 		//Verzeichnnis erstellen
@@ -181,9 +185,15 @@ class POP3Client {
 						//Email im Dateisystem abspeichern
 						speicherDieEmail(puffer, j);
 						
-						//abgeholte Mail löschen vom MAILSERVER
+						//markiert die zu löschende Mail
 						writeToServer("DELE " + j);
 					}
+					
+					//beim quiten werden die durch DELE markierten Emails gelöscht
+					//writeToServer("QUIT");
+					
+					//notify -> server_commands (Emailverzeichnis aktualisieren)
+					server_commands.aktualisieren();
 					
 					//Verbindung wieder schließen
 					socket.close();
