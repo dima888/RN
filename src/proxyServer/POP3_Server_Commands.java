@@ -53,7 +53,7 @@ class POP3_Server_Commands {
 	 * @param userName - Example: POP3Server.USER
 	 * @return
 	 */
-	   String user(String secondPartCommand) {
+	 String user(String secondPartCommand) {
 			if (POP3Server.getUser().compareTo(secondPartCommand) == 0) {
 				System.out.println("USER akzeptiert");
 				return ok;
@@ -68,7 +68,7 @@ class POP3_Server_Commands {
 	 * @param userPassword - Example: POP3Server.PASS
 	 * @return
 	 */
-	   String password(String secondPartCommand) {
+	String password(String secondPartCommand) {
 		if(POP3Server.getPassword().compareTo(secondPartCommand) == 0) {
 			System.out.println("PASSWORD accept");
 			return ok;
@@ -76,6 +76,10 @@ class POP3_Server_Commands {
 		return err;
 	}	
 	 
+	/**
+	 * Macht die Markierungen durch den DELE Befehl rückgängig
+	 * @return
+	 */
 	String rset() {
 		
 		for(Map.Entry<File, Integer> pair : deletedMails.entrySet()) {
@@ -99,14 +103,27 @@ class POP3_Server_Commands {
 		String result = ok + "\n";
 		try {
 			int integer = Integer.parseInt(secondPartCommand);
-
+			String puffer = "";
+			
 			for (Map.Entry<File, Integer> pair : emailMap.entrySet()) {
 				if (integer == pair.getValue()) {
 					exceptionFlag = false;
 					// Datei auslesen
 					Scanner scanner = new Scanner(pair.getKey());
 					while (scanner.hasNextLine()) {
-						result += scanner.nextLine() + "\r\n";
+						puffer += scanner.nextLine() + "\r\n";
+						System.out.println("ZEILE GEHOLT :" + puffer);
+						//Zum verdoppeln aller Punkte, bis auf den letzten
+						//TODO ETWAS EFFIZIENTERES DRAUS MACHEN
+//						for(char c : puffer.toCharArray()) {
+//							if(! (c == '.')) {
+//								System.out.println("KEIN PUNKT, ALSO DIREKT HINZUFÜGEN: " + c);
+//								result += c;
+//							} else {
+//								System.out.println("PUNKT GEFUNDEN, VERDOPPELN: " + c + '.');
+//								result += c + '.';
+//							}
+//						}
 					}
 					scanner.close();
 				}

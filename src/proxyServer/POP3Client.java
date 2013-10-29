@@ -84,11 +84,6 @@ class POP3Client extends Thread{
 	
 	//*********************** METHODEN *******************************
 	
-	@Override
-	public void run() {
-		startePOP3_Client();
-	}
-	
 	/**
 	 * Beschafft die Kontoinformationen zu dem im Konstruktor übergebenen clientName
 	 */
@@ -107,7 +102,8 @@ class POP3Client extends Thread{
 	/**
 	 * Programm start
 	 */
-	private void startePOP3_Client() {		
+	@Override
+	public void run() {	
 		String answerFromServer; // Antwort vom Server
 		
 		// ENDLOSSCHLEIFE --> Der client soll mails holen, bis wir nicht mehr möchten
@@ -157,38 +153,30 @@ class POP3Client extends Thread{
 						writeToServer("RETR " + j);
 						
 						//Puffer für den Text
-						List<String> puffer = new ArrayList<>();
+						List<String> pufferListe = new ArrayList<>();
 						
 						boolean flag = true;
 						
 						//komplette Mail auslesen
 						//TODO: Klappt noch nicht ganz
 						//while(! (readFromServer().contains("\r\n"))) --> ENDLOSSCHLEIFE !
-						while(flag) {
-							String answer = "";
+						while(flag) {							
+							String answer = readFromServer();
 							
-							answer += readFromServer();
-							//System.out.println("ANTWORT: " + answer);
+							deleteDoubleDots(answer);
 							
-							puffer.add(answer);
+							pufferListe.add(answer);
 							
 							//WENN wir eine ZEILE mit nur einem PUNKT bekommen, sind wir durch
 							//SIEHE RN FOLIE 2 ab SEITE 26 BEISPIELE
 							if(answer.startsWith(".")) {
-								Scanner scanner = new Scanner(answer);
-								scanner.nextLine(); //Auch der Punkt
-								
-								//überprüfen, ob nach dem Punkt noch etwas kommt
-								try {
-									scanner.next(); //Löst eine Exception aus, falls kein weiteres Element existiert
-								} catch(NoSuchElementException e) {
-									//System.out.println("SCANNER HAT NACH DEM PUNKT NICHTS MEHR GEFUNDEN!");									
-									flag = false; //Schleife beenden, da Email komplett ausgelesen
+								if(checkIfLastDot(answer)) {
+									flag = false;
 								}
 							}
 						}
 						//Email im Dateisystem abspeichern
-						speicherDieEmail(puffer, j);
+						speicherDieEmail(pufferListe, j);
 						
 						//markiert die zu löschende Mail
 						writeToServer("DELE " + j);
@@ -313,6 +301,43 @@ class POP3Client extends Thread{
 		
 		//Den Writer schließen
 		fw.close();
+	}
+	
+	private boolean checkIfLastDot(String answer) {
+		Scanner scanner = new Scanner(answer);
+		scanner.nextLine(); //Auch der Punkt
+		
+		//überprüfen, ob nach dem Punkt noch etwas kommt
+		try {
+			scanner.next(); //Löst eine Exception aus, falls kein weiteres Element existiert
+		} catch(NoSuchElementException e) {
+			//System.out.println("SCANNER HAT NACH DEM PUNKT NICHTS MEHR GEFUNDEN!");									
+			return true; //Schleife beenden, da Email komplett ausgelesen
+		}
+		return false;
+	}
+	
+	private void deleteDoubleDots(String answer) {
+		String puffer = "";
+		
+		//Punkte suchen und verdoppeln, wenn es nicht der letzte ist
+		//Beispiel --> Mein Name. ist Flah. = Mein Name.. ist Flah.
+		int count = 0;
+		for(char c : answer.toCharArray()) {
+			if(count == 0) {
+				if(! (c == '.')) {
+					puffer += c;
+				} else {
+					count++;
+				}
+			} else {
+				if(! (c == '.')) {
+					puffer += c;
+				} else {
+					puffer += c;
+				}
+			}
+		}
 	}
 	
 	//Leitet unsere Anfragen an den Server weiter

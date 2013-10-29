@@ -12,38 +12,30 @@ import java.nio.file.Paths;
  */
 
 public class ProxyServerStart {
+
+	//BenutzerDaten abspeichern --> Beispiel ACCOUNT
+	private ServerAccountManagement account1 = new ServerAccountManagement("flah", "pop.gmx.de", 110, "flah_ahmad@gmx.de", "RN2013Huebner");
+	private ServerAccountManagement account2 = new ServerAccountManagement("foxhound", "pop.gmx.net", 110, "dima888@gmx.net", "12345678");
 	
-	/**
-	 * Client initiiert eine Verbindung mit einem Server
-	 * @param IP - IP des Servers
-	 * @param SERVER_PORT - Port des Servers
-	 */
+	private POP3_Server_Commands server_commands = new POP3_Server_Commands(Paths.get("C:\\Users\\Sony\\Desktop\\Emails"));
 	
-	private POP3_Server_Commands server_commands = new POP3_Server_Commands(Paths.get("C:\\Users\\abg688\\Desktop\\Emails"));
-	
-	public POP3Client starteClient() {
-		POP3Client client = new POP3Client("foxhound", server_commands);
-		return client;
+	private void starteClient() {
+		POP3Client client = new POP3Client("flah", server_commands);
+		client.start();
 	}
 	
-	public void starteServer() {
-		POP3Server server = new POP3Server(server_commands); //PFAD angeben
+	private void starteServer() {
+		POP3Server server = new POP3Server(server_commands);
+	}
+	
+	public void starteProxyServer() {
+		this.starteClient();
+		this.starteServer();
 	}
 	
 	public static void main(String[] args) {
-		//*************************************************************************************************************************************************
-		//BenutzerDaten abspeichern --> Beispiel ACCOUNT
-		ServerAccountManagement account1 = new ServerAccountManagement("flah", "pop.gmx.de", 110, "flah_ahmad@gmx.de", "RN2013Huebner"); //Bitte Passwort nicht löschen, sonst vergesse ich es !
-		ServerAccountManagement account2 = new ServerAccountManagement("foxhound", "pop.gmx.net", 110, "dima888@gmx.net", "12345678");
-		ServerAccountManagement account3;
-		
-		//*************************************************************************************************************************************************
 		//ProxyServer erstellen
 		ProxyServerStart proxyServer = new ProxyServerStart();
-	
-		
-		proxyServer.starteClient().start();
-		proxyServer.starteServer();
-		
+		proxyServer.starteProxyServer();
 	}	
 }
