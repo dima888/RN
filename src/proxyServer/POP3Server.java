@@ -156,15 +156,19 @@ class POP3Server {
 						
 					}
 					
-					System.out.println("Authentication erfolgreich");			
+					while(true) {
+						checkAllCommand(readFromClient());
+					}
 					
-					request = readFromClient();
-					System.out.println(request);
-					
-					checkAllCommand(request);
-					
-				    request = readFromClient();
-					System.out.println(request + "Request");
+//					System.out.println("Authentication erfolgreich");			
+//					
+//					request = readFromClient();
+//					System.out.println(request);
+//					
+//					checkAllCommand(request);
+//					
+//				    request = readFromClient();
+//					System.out.println(request + "Request");
 //				}
 
 			} catch (IOException e) {

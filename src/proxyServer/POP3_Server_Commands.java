@@ -38,7 +38,7 @@ class POP3_Server_Commands {
 	 public POP3_Server_Commands(Path dirPath) {
 		 this.dirPath = dirPath;
 		 f = new File(dirPath.toString());
-		 getMails();
+		 aktualisieren();
 	 }
 	 
 	 //***************** GETTER ********************
@@ -262,7 +262,18 @@ class POP3_Server_Commands {
 		}
 		
 		public void aktualisieren() {
-			getMails();
+			for (File i : f.listFiles()) {
+				char[] puffer = i.getName().toCharArray();
+				String result = "";
+				for (int j = 6; j < puffer.length; j++) {
+					if (puffer[j] == '.') {
+						break;
+					} else {
+						result += puffer[j];
+					}
+				}
+				emailMap.put(i, Integer.parseInt(result));
+			}
 		}
 		
 		/**
@@ -277,20 +288,6 @@ class POP3_Server_Commands {
 			}
 		}
 		
-	private void getMails() {
-		for (File i : f.listFiles()) {
-			char[] puffer = i.getName().toCharArray();
-			String result = "";
-			for (int j = 6; j < puffer.length; j++) {
-				if (puffer[j] == '.') {
-					break;
-				} else {
-					result += puffer[j];
-				}
-			}
-			emailMap.put(i, Integer.parseInt(result));
-		}
-	}
 	  
 	//**************************** TEST *****************************
 	public static void main(String[] args) {
