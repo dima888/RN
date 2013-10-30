@@ -20,11 +20,11 @@ class POP3Server {
 	private static final int SERVER_PORT = 11000; // Auf diesen Port wird "gelauscht"
 	
 	//Anmeldedaten für genau einen Clienten in beispielsweise Thunderbird
-	private static final String USER = "flah_ahmad@gmx.de";
-	private static final String PASS = "RN2013Huebner";
+//	private static final String USER = "flah_ahmad@gmx.de";
+//	private static final String PASS = "RN2013Huebner";
 	
-//	private static final String USER = "dima888@gmx.net"; //foxhound
-//	private static final String PASS = "12345678";
+	private static final String USER = "dima888@gmx.net"; //foxhound
+	private static final String PASS = "12345678";
 	
 	POP3_Server_Commands server_commands;	
 	
@@ -183,7 +183,7 @@ class POP3Server {
 				writeToClient(ok + " Username accepted, password please\r\n");
 				if(checkAllCommand(readFromClient()).compareTo(ok) == 0) {
 					writeToClient(ok + " Password accept\r\n");
-					writeToClient("authentication accept\r\n");
+//					writeToClient(ok + " authentication accept\r\n");
 					return false;
 				}
 			}

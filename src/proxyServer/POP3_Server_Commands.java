@@ -230,7 +230,7 @@ class POP3_Server_Commands {
 	  * @return result - fertiger String mit den oben genannten infos
 	  */
 	  String stat()  {	 
-		 String result = ok + "\r\n";
+		 String result = ok + " ";
 		 int count = 0;
 		 int completeLengh = 0;
 
