@@ -163,7 +163,7 @@ class POP3Client extends Thread{
 						while(flag) {							
 							String answer = readFromServer();
 							
-							deleteDoubleDots(answer);
+							//deleteDoubleDots(answer);
 							
 							pufferListe.add(answer);
 							

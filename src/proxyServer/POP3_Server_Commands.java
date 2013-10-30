@@ -111,10 +111,11 @@ class POP3_Server_Commands {
 					// Datei auslesen
 					Scanner scanner = new Scanner(pair.getKey());
 					while (scanner.hasNextLine()) {
-						puffer += scanner.nextLine() + "\r\n";
-						System.out.println("ZEILE GEHOLT :" + puffer);
-						//Zum verdoppeln aller Punkte, bis auf den letzten
-						//TODO ETWAS EFFIZIENTERES DRAUS MACHEN
+						//puffer += scanner.nextLine() + "\r\n";
+						result += scanner.nextLine() + "\r\n";
+//						System.out.println("ZEILE GEHOLT :" + puffer);
+//						Zum verdoppeln aller Punkte, bis auf den letzten
+//						TODO ETWAS EFFIZIENTERES DRAUS MACHEN
 //						for(char c : puffer.toCharArray()) {
 //							if(! (c == '.')) {
 //								System.out.println("KEIN PUNKT, ALSO DIREKT HINZUFÜGEN: " + c);
@@ -136,7 +137,6 @@ class POP3_Server_Commands {
 		} catch (Exception e) {
 			return exception;
 		}
-
 		return result + "\r\n";
 	}
 
