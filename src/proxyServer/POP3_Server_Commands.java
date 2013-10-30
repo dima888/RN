@@ -34,6 +34,7 @@ class POP3_Server_Commands {
 	 public POP3_Server_Commands(Path dirPath) {
 		 this.dirPath = dirPath;
 		 f = new File(dirPath.toString());
+		 aktualisieren();
 	 }
 	 
 	 //***************** GETTER ********************
@@ -55,7 +56,6 @@ class POP3_Server_Commands {
 	 */
 	 String user(String secondPartCommand) {
 			if (POP3Server.getUser().compareTo(secondPartCommand) == 0) {
-				System.out.println("USER akzeptiert");
 				return ok;
 			}
 			return err;
@@ -70,7 +70,6 @@ class POP3_Server_Commands {
 	 */
 	String password(String secondPartCommand) {
 		if(POP3Server.getPassword().compareTo(secondPartCommand) == 0) {
-			System.out.println("PASSWORD accept");
 			return ok;
 		}
 		return err;
@@ -189,7 +188,6 @@ class POP3_Server_Commands {
 			result += pair.getValue() + " " + pair.getKey().length() + "\r\n"; 
 		}
 		
-		 
 		 return result + ".\r\n";
 	}
 	
@@ -200,7 +198,7 @@ class POP3_Server_Commands {
 	  */
 	 String list(String secondPartCommand) {
 		String exception = "-ERR invalid sequence number:" + secondPartCommand + "\r\n";
-		String result = ok + "\n";		
+		String result = ok + " ";		
 		boolean exceptionFlag = true;
 
 		try {			
@@ -246,6 +244,43 @@ class POP3_Server_Commands {
 		result += completeLengh + "\r\n";
 		return result;
 	}
+	  
+	  /**
+	   * Liefert die eindeutigen ID's der Mails zurück
+	   */
+	  String uidl() {
+			String result = ok + "\n";		
+			
+			for(Map.Entry<File, Integer> pair : emailMap.entrySet()) {
+				result += pair.getValue() + "\n";
+			}
+			
+			return result + ".\n";
+	  }
+	  
+	  /**
+	   * Liefert die eindeutigen ID's der Mails zurück
+	   */
+	  String uidl(String secondPartCommand) {
+			String result = ok + " ";
+			String exception = "-ERR invalid sequence number:" + secondPartCommand + "\r\n";
+			boolean exceptionFlag = true;
+			
+			int integer = Integer.parseInt(secondPartCommand);
+			
+			for(Map.Entry<File, Integer> pair : emailMap.entrySet()) {
+				if(integer == pair.getValue()) {
+					result += pair.getValue() + "\n";
+					exceptionFlag = false;
+				}
+			}
+			
+			if(exceptionFlag) {
+				return exception;
+			}
+			
+			return result + "\n";
+	  }
 
 	 /**
 	  * Beenden die Verbindung mit den Aktuellen Clienten

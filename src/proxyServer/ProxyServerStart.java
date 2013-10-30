@@ -17,10 +17,10 @@ public class ProxyServerStart {
 	private ServerAccountManagement account1 = new ServerAccountManagement("flah", "pop.gmx.de", 110, "flah_ahmad@gmx.de", "RN2013Huebner");
 	private ServerAccountManagement account2 = new ServerAccountManagement("foxhound", "pop.gmx.net", 110, "dima888@gmx.net", "12345678");
 	
-	private POP3_Server_Commands server_commands = new POP3_Server_Commands(Paths.get("C:\\Users\\abg688\\Desktop\\Emails"));
+	private POP3_Server_Commands server_commands = new POP3_Server_Commands(Paths.get("C:\\Users\\Sony\\Desktop\\Emails"));
 	
 	private void starteClient() {
-		POP3Client client = new POP3Client("foxhound", server_commands);
+		POP3Client client = new POP3Client("flah", server_commands);
 		client.start();
 	}
 	

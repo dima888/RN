@@ -20,11 +20,11 @@ class POP3Server {
 	private static final int SERVER_PORT = 11000; // Auf diesen Port wird "gelauscht"
 	
 	//Anmeldedaten für genau einen Clienten in beispielsweise Thunderbird
-//	private static final String USER = "flah_ahmad@gmx.de";
-//	private static final String PASS = "RN2013Huebner";
+	private static final String USER = "flah_ahmad@gmx.de";
+	private static final String PASS = "RN2013Huebner";
 	
-	private static final String USER = "dima888@gmx.net"; //foxhound
-	private static final String PASS = "12345678";
+//	private static final String USER = "dima888@gmx.net"; //foxhound
+//	private static final String PASS = "12345678";
 	
 	POP3_Server_Commands server_commands;	
 	
@@ -99,7 +99,6 @@ class POP3Server {
 		
 		//************************* SUPER METHODE; PRUEFT OB BEFEHL LAUT RFC 1939 DEFINIERT IST ***********************		 
 		  String checkAllCommand(String clientCommand) {
-			 
 			 Scanner scanner = new Scanner(clientCommand);
 			 String firstPartCommand = scanner.next();
 			 String secondPartCommand = "";
@@ -119,8 +118,9 @@ class POP3Server {
 			 case "retr" : return server_commands.retr(secondPartCommand); 
 			 case "dele" : return server_commands.dele(secondPartCommand); 
 			 case "noop" : return server_commands.noop(); 
-			 case "rset" : return server_commands.rset(); 
-			 default: return server_commands.err;
+			 case "rset" : return server_commands.rset();
+			 case "uidl" : if(secondPartCommand.isEmpty()) {return server_commands.uidl();} else {return server_commands.uidl(secondPartCommand);}
+			 default: return server_commands.err + " unknown command";
 			 
 			 }		
 		}
@@ -140,7 +140,7 @@ class POP3Server {
 				
 				writeToClient("+OK Welcome\n");
 			
-					while(authentication()) {
+					while(authentification()) {
 						
 					}
 					
@@ -164,7 +164,7 @@ class POP3Server {
 		private String readFromClient() throws IOException {
 			String request = "";
 			request = inFromClient.readLine() + "\n" ;
-			System.out.println("TCP Server sending to Thread: " + threadNumber  + " :" + request);
+			System.out.println("TCP Server sending to Thread: " + threadNumber  + " " + request);
 			return request;
 		}
 		
@@ -178,16 +178,16 @@ class POP3Server {
 			System.out.println("TCP Server Thread " + threadNumber	+ " has written the message: " + reply);
 		}		
 		
-		private boolean authentication() throws IOException {
+		private boolean authentification() throws IOException {
 			if(checkAllCommand(readFromClient()).compareTo(ok) == 0) {;
 				writeToClient(ok + " Username accepted, password please\r\n");
 				if(checkAllCommand(readFromClient()).compareTo(ok) == 0) {
-					writeToClient(ok + " Password accept\r\n");
-//					writeToClient(ok + " authentication accept\r\n");
+					writeToClient(ok + " Password accepted\r\n");
+//					writeToClient(ok + " authentification accept\r\n");
 					return false;
 				}
 			}
-			writeToClient("authentication is fail\r\n");
+			writeToClient("authentification failed\r\n");
 			return true;
 		}
 	}

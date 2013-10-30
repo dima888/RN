@@ -57,7 +57,9 @@ class POP3Client extends Thread{
 
 	private boolean serviceRequested = true; // Client läuft solange true
 	
-	POP3_Server_Commands server_commands;
+	private POP3_Server_Commands server_commands;
+	
+	private static int emailID = 0;
 
 	//********************** KONSTRUKTOR *****************************
 	
@@ -78,8 +80,6 @@ class POP3Client extends Thread{
 		}
 		
 		this.server_commands = server_commands;
-		
-		//startePOP3_Client(); //Das abholen der Mails starten
 	}
 	
 	//*********************** METHODEN *******************************
@@ -132,10 +132,12 @@ class POP3Client extends Thread{
 
 					//*********************************** EMAIL BESCHAFFUNG **********************************************
 					
+					//Gibt Auskunft über das Konto an --> +OK mailbox ... has anzahl nachrichten
+					answerFromServer = readFromServer();
+					
 					//Nachschauen wieviele ungelesenen Emails vorhanden sind
 					writeToServer("STAT"); //Befehl gibt uns die Anzahl an Emails und Anzahlder Zeichen aus
 					
-					answerFromServer = readFromServer(); //Gibt Auskunft über das Konto an
 					answerFromServer = readFromServer(); //+OK Anzahl und Zeichen
 					
 					//Extrahiert die Anzahl der Emails aus dem String
@@ -143,6 +145,7 @@ class POP3Client extends Thread{
 					
 					//Falls keine Mails da sind, dann ist das nächste Konto dran
 					if(anzahlDerEmails == 0) {
+						//stat 0 0 --> Anzahl 0 und anzahl enthaltener Zeichen 0
 						continue; //Wir gehen einen Durchlauf weiter, zum nächsten
 					}
 					
@@ -176,14 +179,14 @@ class POP3Client extends Thread{
 							}
 						}
 						//Email im Dateisystem abspeichern
-						speicherDieEmail(pufferListe, j);
+						speicherDieEmail(pufferListe, ++emailID);
 						
 						//markiert die zu löschende Mail
 						writeToServer("DELE " + j);
 					}
 					
 					//beim quiten werden die durch DELE markierten Emails gelöscht
-					//writeToServer("QUIT");
+					writeToServer("QUIT");
 					
 					//notify -> server_commands (Emailverzeichnis aktualisieren)
 					server_commands.aktualisieren();
@@ -191,15 +194,17 @@ class POP3Client extends Thread{
 					//Verbindung wieder schließen
 					socket.close();
 					
-					System.out.println("Client wartet 30 Sekunden mit dem erneuten abholen der Mails !");
-					Thread.currentThread().sleep(30_000);
-					System.out.println("Ich bin wieder erwacht und es kann weiter gehen !\n");
-					
 				} catch (IOException e) {
 					System.err.println("TCP Verbindung konnte zum Server nicht hergestellt werden");
-				} catch (InterruptedException e) {
-					System.err.println("Wer hat mich aus dem Schlaf gerissen ?!");
-				} 
+				}
+			}
+		
+			try {
+				System.out.println("Abhol Service wartet 30 Sekunden mit dem erneuten abholen der Mails !");
+				Thread.currentThread().sleep(30_000);
+				System.out.println("Mails werden wieder abgeholt !\n");
+			} catch (InterruptedException e) {
+				System.err.println("Ich wurde beim schlafen aufgeweckt");
 			}
 		}
 	}
@@ -267,8 +272,17 @@ class POP3Client extends Thread{
 		
 		scanner.next(); //Zum überspringen des --> +OK
 		
+		String zahl = "";
+		
 		//Beispiel: EINGABE --> LIST	AUSGABE DES SERVERS --> +OK 3 4070
-		String zahl = scanner.next();
+		if(scanner.hasNext()) {
+			zahl = scanner.next();
+		}
+		
+		if(zahl.isEmpty()) {
+			return 0;
+		}
+		
 		result = Integer.parseInt(zahl);
 		
 		return result;
