@@ -299,14 +299,4 @@ class POP3_Server_Commands {
 				}
 			}
 		}
-		
-	  
-	//**************************** TEST *****************************
-	public static void main(String[] args) {
-		
-//		POP3_Server_Commands server_commands = new POP3_Server_Commands(Paths.get("C:\\Users\\abg688\\Desktop\\Emails"));
-//		System.out.println(server_commands.dele("2"));
-//		System.out.println(server_commands.quit(null));
-		
-	}
 }

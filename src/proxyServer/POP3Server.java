@@ -150,7 +150,6 @@ class POP3Server {
 					}
 
 			} catch (IOException e) {
-				//System.out.println(e.toString() + "AAA");
 				return;
 			}
 
@@ -191,11 +190,5 @@ class POP3Server {
 			writeToClient("authentication is fail\r\n");
 			return true;
 		}
-	}
-	
-	//********************** TEST *********************
-	public static void main(String[] args) {
-		//POP3Server server = new POP3Server(dirPath);
-//		server.startePOP3_Server();
 	}
 }
