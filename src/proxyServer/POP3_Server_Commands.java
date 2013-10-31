@@ -34,9 +34,9 @@ class POP3_Server_Commands {
 	 public POP3_Server_Commands(Path dirPath) {
 		 this.dirPath = dirPath;
 		 f = new File(dirPath.toString());
-		 aktualisieren();
+//		 aktualisieren();
 	 }
-	 
+
 	 //***************** GETTER ********************
 	public Map<File , Integer> getEmailMap() {
 		return emailMap;

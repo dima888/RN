@@ -186,7 +186,7 @@ class POP3Client extends Thread{
 					}
 					
 					//beim quiten werden die durch DELE markierten Emails gelöscht
-					writeToServer("QUIT");
+					//writeToServer("QUIT");
 					
 					//notify -> server_commands (Emailverzeichnis aktualisieren)
 					server_commands.aktualisieren();
