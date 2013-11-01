@@ -126,6 +126,9 @@ class POP3_Server_Commands {
 //						}
 					}
 					scanner.close();
+					//Löscht die Mails vom "Server" --> vom Dateisystem
+					pair.getKey().delete();
+					emailMap.remove(pair.getKey());
 				}
 			}
 
@@ -134,7 +137,7 @@ class POP3_Server_Commands {
 			}
 
 		} catch (Exception e) {
-			return exception;
+			//return exception;
 		}
 		return result + "\r\n";
 	}
