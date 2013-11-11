@@ -20,20 +20,20 @@ class POP3Server {
 	private static final int SERVER_PORT = 11000; // Auf diesen Port wird "gelauscht"
 	
 	//Anmeldedaten für genau einen Clienten in beispielsweise Thunderbird
-	private static final String USER = "dima888@gmx.net"; //foxhound
-	private static final String PASS = "12345678";
+//	private static final String USER = "dima888@gmx.net"; //foxhound
+//	private static final String PASS = "12345678";
 	
 	POP3_Server_Commands server_commands;	
 	
 	// *********************GETTER**********************
 	
-	public static String getUser() {
-		return USER;
-	}
-	
-	public static String getPassword() {
-		return PASS;
-	}
+//	public static String getUser() {
+//		return USER;
+//	}
+//	
+//	public static String getPassword() {
+//		return PASS;
+//	}
 	
 	//********************** KONSTRUKTOR *****************************	
 	
@@ -124,9 +124,7 @@ class POP3Server {
 		
 //		@Override
 		public void run() {
-			System.out.println("Der Client hat sich zu uns verbunden");
-//			USER, PASS, QUIT, START, LIST, RETR, DELE, NOOP, RSET
-			String capa = "+OK Server ready\nUSER\nPASS\nSTAT\nLIST\nRETR\n";							
+			System.out.println("Der Client hat sich zu uns verbunden");							
 			
 			//Erst muss eingeloggt werde, bevor request gestartet werden koennen 
 			try {
@@ -175,12 +173,14 @@ class POP3Server {
 			System.out.println("TCP Server Thread " + threadNumber	+ " has written the message: " + reply);
 		}		
 		
-		//TODO: zwei mal eingeben von pass fuehrt zum login
+		//TODO: zwei mal eingeben von pass fuehrt zum login //Mit flag lösen wäre möglich
 		private boolean authentification() throws IOException {
 			String clientRequest = readFromClient();
+			
 			if (checkAllCommand(clientRequest).compareTo(ok) == 0) {
 				writeToClient(ok + " Username accepted, password please\r\n");
 				String clientRequestTwo = readFromClient();
+				
 				if (checkAllCommand(clientRequestTwo).compareTo(ok) == 0) {
 					writeToClient(ok + " Password accepted\r\n");
 					return false;

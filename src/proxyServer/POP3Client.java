@@ -41,7 +41,6 @@ import proxyServer.ServerAccountManagement.Info;
 class POP3Client extends Thread{
 	
 	//*********************** ATTRIBUTE *****************************
-	
 	private String clientName;
 	//Liste mit den Kontoinformationen für das jeweilige Konto
 	private List<Info> infos = new ArrayList<>();
@@ -58,7 +57,6 @@ class POP3Client extends Thread{
 	private static int emailID = 0;
 
 	//********************** KONSTRUKTOR *****************************
-	
 	/**
 	 * "AUTOMATISIERTER KONSTRUKTOR" --> Beim erstellen eines Objektes wird alles weitere automatisch ausgeführt
 	 * @param clientName

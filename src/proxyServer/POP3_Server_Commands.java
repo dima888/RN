@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -28,6 +29,9 @@ class POP3_Server_Commands {
 	  private Path dirPath;
 
 	  File f;
+	  
+	  String currentUser = ""; //Aktuell eingeloggte User 
+	  private ServerAccountManagement serverAccountManagement;
 	 
 	 //******************************** PRIVATER KONSTRUKTOR ******************************************
 	 
@@ -36,6 +40,7 @@ class POP3_Server_Commands {
 		 f = new File(dirPath.toString());
 //		 aktualisieren();
 	 }
+	 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 	 //***************** GETTER ********************
 	public Map<File , Integer> getEmailMap() {
@@ -46,6 +51,12 @@ class POP3_Server_Commands {
 		return dirPath;
 	}
 	
+	//***************************SETTER***************************
+	//Mit ServerAccountManagment bekannt machen
+	public void setServerAccountManagement(ServerAccountManagement serverAccountManagement) {
+		this.serverAccountManagement = serverAccountManagement;		
+	}
+	
 	//************************* RFC 1939 METHODS *****************************
 	
 	/**
@@ -54,10 +65,16 @@ class POP3_Server_Commands {
 	 * @param userName - Example: POP3Server.USER
 	 * @return
 	 */
-	 String user(String secondPartCommand) {
-			if (POP3Server.getUser().compareTo(secondPartCommand) == 0) {
-				return ok;
-			}
+	 String user(String secondPartCommand) {		 
+		 for(Map.Entry<String, List<Object>> account : serverAccountManagement.getAccountMap().entrySet()) {
+			 if(account.getKey().compareTo(secondPartCommand) == 0) {
+				 currentUser = account.getKey();
+				 return ok;
+			 }
+		 }		 		 
+//			if (POP3Server.getUser().compareTo(secondPartCommand) == 0) {
+//				return ok;
+//			}
 			return err;
 		}
 
@@ -69,9 +86,17 @@ class POP3_Server_Commands {
 	 * @return
 	 */
 	String password(String secondPartCommand) {
-		if(POP3Server.getPassword().compareTo(secondPartCommand) == 0) {
-			return ok;
-		}
+		 for(Map.Entry<String, List<Object>> account : serverAccountManagement.getAccountMap().entrySet()) {
+			 if(currentUser.compareTo(account.getKey()) == 0) {
+				 if(((String) account.getValue().get(3)).compareTo(secondPartCommand) == 0) {
+					 return ok;
+				 }
+			 }
+		 }
+		
+//		if(POP3Server.getPassword().compareTo(secondPartCommand) == 0) {
+//			return ok;
+//		}
 		return err;
 	}	
 	 
@@ -142,6 +167,7 @@ class POP3_Server_Commands {
 		return result + "\r\n";
 	}
 
+	//TODO: Kommentieren
 	String noop() {
 		return ok;
 	}
