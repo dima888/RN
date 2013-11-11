@@ -17,10 +17,6 @@ import java.util.Scanner;
 import proxyServer.ServerAccountManagement.Info;
 
 /********************************************* TODO *********************************************************************
- * Die Mails lassen sich schon abholen und speichern.
- * 
- * Fehlen tut noch, dass der Client alle 30 SEKUNDEN die MAILS abholt. Mit Thread.currentThread().sleep() hat 
- * es irgendwie nicht geklappt. Dies ist aber ein kleineres Übel. Das kann man auf vielen Varianten lösen.
  * 
  * Ich wäre dafür den Pfad zum Verzeichnis in der Klasse ServerAccountManagement zu verwalten, da wir diesen einmal in
  * dieser Klasse benötigen und einmal in der POP3Server Klasse. Somit haben wir Code duplizierung und müssen auch, wenn

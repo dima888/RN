@@ -175,12 +175,14 @@ class POP3Server {
 			System.out.println("TCP Server Thread " + threadNumber	+ " has written the message: " + reply);
 		}		
 		
+		//TODO: zwei mal eingeben von pass fuehrt zum login
 		private boolean authentification() throws IOException {
-			if(checkAllCommand(readFromClient()).compareTo(ok) == 0) {;
+			String clientRequest = readFromClient();
+			if (checkAllCommand(clientRequest).compareTo(ok) == 0) {
 				writeToClient(ok + " Username accepted, password please\r\n");
-				if(checkAllCommand(readFromClient()).compareTo(ok) == 0) {
+				String clientRequestTwo = readFromClient();
+				if (checkAllCommand(clientRequestTwo).compareTo(ok) == 0) {
 					writeToClient(ok + " Password accepted\r\n");
-//					writeToClient(ok + " authentification accept\r\n");
 					return false;
 				}
 			}
