@@ -16,23 +16,12 @@ class POP3Server {
 	//*********************** ATTRIBUTE *****************************
 	
 	/* Server, der Verbindungsanfragen entgegennimmt */
-	private static final int SERVER_PORT = 11000; // Auf diesen Port wird "gelauscht"
-	
-	//Anmeldedaten für genau einen Clienten in beispielsweise Thunderbird
-//	private static final String USER = "dima888@gmx.net"; //foxhound
-//	private static final String PASS = "12345678";
+	 // Auf diesen Port wird "gelauscht"
 	
 	POP3_Server_Commands server_commands;	
 	
 	// *********************GETTER**********************
 	
-//	public static String getUser() {
-//		return USER;
-//	}
-//	
-//	public static String getPassword() {
-//		return PASS;
-//	}
 	
 	//********************** KONSTRUKTOR *****************************	
 	
@@ -48,10 +37,10 @@ class POP3Server {
 		Socket connectionSocket; // VerbindungsSocket mit Client
 		
 		try {
-			welcomeSocket = new ServerSocket(SERVER_PORT); 						
+			welcomeSocket = new ServerSocket(Information.SERVER_PORT); 						
 			
 			while(true) {
-				System.out.println("TCP Server: Lauschen auf Port: " + SERVER_PORT);
+				System.out.println("TCP Server: Lauschen auf Port: " + Information.SERVER_PORT);
 				
 				/*
 				 * Blockiert MainThread, wartet auf Verbindungsanfrage --> nach

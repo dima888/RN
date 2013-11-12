@@ -19,7 +19,7 @@ public class ProxyServerFaktory {
 	private ServerAccountManagement serverAccountManagement = new ServerAccountManagement();
 	
 	//private POP3_Server_Commands server_commands = new POP3_Server_Commands(Paths.get("C:\\Users\\foxhound\\Desktop\\Emails"));
-	private POP3_Server_Commands server_commands = new POP3_Server_Commands(Paths.get("C:\\Users\\abg688\\Desktop\\Emails"));
+	private POP3_Server_Commands server_commands = new POP3_Server_Commands(Paths.get("C:\\Users\\abg688.INFORMATIK\\Desktop\\Emails"));
 	
 	private void starteClient() {
 		POP3Client client = new POP3Client("foxhound", server_commands);
@@ -40,7 +40,7 @@ public class ProxyServerFaktory {
 	
 	private void setAccounts() {
 		serverAccountManagement.setAccount("foxhound", "pop.gmx.net", 110, "dima888@gmx.net", "12345678");
-		serverAccountManagement.setAccount("Al", "pop.gmx.de", 110, "flah_ahmad@gmx.de", "RN2013Huebner"); //PW -> -_-
+		//serverAccountManagement.setAccount("Al", "pop.gmx.de", 110, "flah_ahmad@gmx.de", "RN2013Huebner"); //PW -> -_-
 	}
 	
 	public void startTheProgramm() {

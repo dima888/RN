@@ -12,12 +12,6 @@ import java.util.Scanner;
 /**
  * Proconditions, fuer die Korrekte Schreibweise von Client an den Server
  * @author foxhound
- * Info:
-	 * Account definieren
-	 * index(0) => ip
-	 * index(1) => port
-	 * index(2) => kontoname
-	 * index(3) => password
  */
 
 class POP3_Server_Commands {
@@ -81,16 +75,13 @@ class POP3_Server_Commands {
 	 */
 	 String user(String secondPartCommand) {		 
 		 for(Map.Entry<List<Object>, String> account : serverAccountManagement.getAccountMap().entrySet()) {
-			 if(((String)account.getKey().get(2)).compareTo(secondPartCommand) == 0) {
+			 if(((String)account.getKey().get(Information.KONTONAME)).compareTo(secondPartCommand) == 0) {
 				 //currentUser = account.getKey();
-				 currentUser = (String) account.getKey().get(2);
+				 currentUser = (String) account.getKey().get(Information.KONTONAME);
 				 userFlag = true;
 				 return ok;
 			 }
 		 }		 		 
-//			if (POP3Server.getUser().compareTo(secondPartCommand) == 0) {
-//				return ok;
-//			}
 			return err;
 		}
 
@@ -104,8 +95,8 @@ class POP3_Server_Commands {
 	String password(String secondPartCommand) {
 		if(userFlag == true) {
 			for(Map.Entry<List<Object>, String> account : serverAccountManagement.getAccountMap().entrySet()) {
-				 if(currentUser.compareTo(((String)account.getKey().get(2))) == 0) {
-					 if(((String) account.getKey().get(3)).compareTo(secondPartCommand) == 0) {
+				 if(currentUser.compareTo(((String)account.getKey().get(Information.KONTONAME))) == 0) {
+					 if(((String) account.getKey().get(Information.PASSWORD)).compareTo(secondPartCommand) == 0) {
 						 authenticationFlag = true;						 
 						 return ok;
 					 }
@@ -113,11 +104,6 @@ class POP3_Server_Commands {
 			 }
 			userFlag = false;
 		}
-		 
-		
-//		if(POP3Server.getPassword().compareTo(secondPartCommand) == 0) {
-//			return ok;
-//		}
 		return err;
 	}	
 	 

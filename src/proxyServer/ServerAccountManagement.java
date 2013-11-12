@@ -12,16 +12,15 @@ import java.util.Map;
  * Verwaltet die Accounts
  */
 
-//TODO: Clientname ist redundant, meinens empfinden gerade, es ist 23Uhr -_-
-class ServerAccountManagement {
-	
-	//Verwalten aller Konten für fortgeschrittene (erstmall public, will es schnell fertig machen). Bei bedarf die kontoname aus der liste rausnehmen
-	private Map<List<Object>, String> accountMap = new HashMap<>(); //String(0) => kontoname; List = {ip, port, kontoname, password}
+class ServerAccountManagement  {
+
+	//Verwalten aller Konten für fortgeschrittene (erstmall public, will es schnell fertig machen). Bei bedarf die KONTONAME aus der liste rausnehmen
+	private Map<List<Object>, String> accountMap = new HashMap<>(); //String(0) => KONTONAME; List = {ip, port, KONTONAME, PASSWORD}
 	private List<Object> infoList = new ArrayList<>();
 	
 	//*******************Konstruktoren**************************
-	public ServerAccountManagement(String clientName, String ip, int serverPort, String kontoName, String password) {
-//		Info information = new Info(ip, serverPort, kontoName, password);
+	public ServerAccountManagement(String clientName, String ip, int serverPort, String kontoname, String password) {
+//		Info information = new Info(ip, serverPort, KONTONAME, PASSWORD);
 //		abbildung.put(information, clientName);
 	}
 	
@@ -36,7 +35,7 @@ class ServerAccountManagement {
 		String result = "NULL";
 		for(Map.Entry<List<Object>, String> account : accountMap.entrySet()) {
 			if(account.getValue().compareTo(clientName) == 0) {
-				return (String) account.getKey().get(0);
+				return (String) account.getKey().get(Information.IP);
 			}
 		}
 		return result;
@@ -46,27 +45,27 @@ class ServerAccountManagement {
 		int result = -1;
 		for(Map.Entry<List<Object>, String> account : accountMap.entrySet()) {
 			if(account.getValue().compareTo(clientName) == 0) {
-				return (int) account.getKey().get(1);
+				return (int) account.getKey().get(Information.PORT);
 			}
 		}
 		return result;
 	}
 
-	public String getKontoNameFrom(String clientName) {
+	public String getKONTONAMEFrom(String clientName) {
 		String result = "NULL";
 		for(Map.Entry<List<Object>, String> account : accountMap.entrySet()) {
 			if(account.getValue().compareTo(clientName) == 0) {
-				return (String) account.getKey().get(2);
+				return (String) account.getKey().get(Information.KONTONAME);
 			}
 		}
 		return result;
 	}
 
-	public String getPasswordFrom(String clientName) {
+	public String getPASSWORDFrom(String clientName) {
 		String result = "NULL";
 		for(Map.Entry<List<Object>, String> account : accountMap.entrySet()) {
 			if(account.getValue().compareTo(clientName) == 0) {
-				return (String) account.getKey().get(3);
+				return (String) account.getKey().get(Information.PASSWORD);
 			}
 		}
 		return result;
@@ -81,13 +80,13 @@ class ServerAccountManagement {
 	 * Account definieren
 	 * index(0) => ip
 	 * index(1) => port
-	 * index(2) => kontoname
-	 * index(3) => password
-	 * @param clientName
-	 * @param ip
-	 * @param port
-	 * @param kontoname
-	 * @param password
+	 * index(2) => KONTONAME
+	 * index(3) => PASSWORD
+	 * @param String clientName - Name des Clienten
+	 * @param String ip - Die ip auf welchen Rechner wir connecten wollen
+	 * @param Integer port - Die Anwendung, auf die wir zugreifen möchten
+	 * @param String KONTONAME - eine email-Adresse
+	 * @param String PASSWORD - zur email-Adresse das benötigte Passwort
 	 */
 	public void setAccount(String clientName, String ip, int port, String kontoname, String password) {
 		infoList = new ArrayList<>(Arrays.asList(ip, port, kontoname, password));

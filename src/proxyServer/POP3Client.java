@@ -93,21 +93,6 @@ class POP3Client extends Thread{
 	//*********************** METHODEN *******************************
 	
 	/**
-	 * Beschafft die Kontoinformationen zu dem im Konstruktor übergebenen clientName
-	 */
-//	private void getInfos() {
-//		for(Map.Entry<Info, String> pair : ServerAccountManagement.getAbbildung().entrySet()) {
-//				if(pair.getValue().compareTo(clientName) == 0) {
-//					infos.add(pair.getKey());
-//			}
-//		}
-//		//Falls kein client mit dem übergebenen clientName übereinstimmt
-//		if(infos.isEmpty()) {
-//			throw new IllegalArgumentException("Das '" + clientName + "' ist nicht vorhanden!");
-//		}
-//	}
-	
-	/**
 	 * Programm start
 	 */
 	@Override
@@ -125,33 +110,25 @@ class POP3Client extends Thread{
 				if (account.getValue().compareTo(currentUser) == 0) {
 					try {
 						//****************************** VERBINDUNGSAUFBAU **************************************************
-						/**
-						 * index(0) => ip
-						 * index(1) => port
-		 				 * index(2) => kontoname
-		 				 * index(3) => password	 
-						 */							
-						
-						//Socket socket = verbindungAufbauen(i.getIp(), i.getServerPort());
-						Socket socket = verbindungAufbauen((String)account.getKey().get(0), (Integer)account.getKey().get(1));
+
+						Socket socket = verbindungAufbauen((String)account.getKey().get(Information.IP), (Integer)account.getKey().get(Information.PORT));
 						
 						System.out.println("TCP-Client hat sich verbunden!");
-//						System.out.println("TCP-CLient beschafft Email von Emailadresse: "	+ i.getKontoName());
-						System.out.println("TCP-CLient beschafft Email von Emailadresse: "	+ account.getKey().get(2));
+						System.out.println("TCP-CLient beschafft Email von Emailadresse: "	+ account.getKey().get(Information.KONTONAME));
 
 						//*********************************** AUTHENTIFIZIERUNG **********************************************
 						
 						//boolean a = authentifizierung(i.getKontoName(), i.getPassword());
-						boolean a = authentifizierung((String)account.getKey().get(2), (String)account.getKey().get(3));
+						boolean a = authentifizierung((String)account.getKey().get(Information.KONTONAME), (String)account.getKey().get(Information.PASSWORD));
 						
 						if(!a) {
 							//System.err.println("Authentifizierung fehlgeschlagen, Benutzername oder Passwort falsch bei Konto: " + i.getKontoName());
-							System.err.println("Authentifizierung fehlgeschlagen, Benutzername oder Passwort falsch bei Konto: " + account.getKey().get(2));
+							System.err.println("Authentifizierung fehlgeschlagen, Benutzername oder Passwort falsch bei Konto: " + account.getKey().get(Information.KONTONAME));
 							continue;
 						}
 						
 						//System.out.println("TCP-Client hat sich erfolgreich eingeloggt bei " + i.getKontoName());
-						System.out.println("TCP-Client hat sich erfolgreich eingeloggt bei " + account.getKey().get(2));
+						System.out.println("TCP-Client hat sich erfolgreich eingeloggt bei " + account.getKey().get(Information.KONTONAME));
 
 						//*********************************** EMAIL BESCHAFFUNG **********************************************
 						
