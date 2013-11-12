@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-import proxyServer.ServerAccountManagement.Info;
+//import proxyServer.ServerAccountManagement.Info;
 
 /********************************************* TODO *********************************************************************
  * 
@@ -41,9 +41,9 @@ import proxyServer.ServerAccountManagement.Info;
 class POP3Client extends Thread{
 	
 	//*********************** ATTRIBUTE *****************************
-	private String clientName;
+	private String currentUser; //client
 	//Liste mit den Kontoinformationen für das jeweilige Konto
-	private List<Info> infos = new ArrayList<>();
+	//private List<Info> infos = new ArrayList<>();
 	
 	/* Server, der Verbindungsanfragen entgegennimmt */
 	
@@ -53,6 +53,7 @@ class POP3Client extends Thread{
 	private boolean serviceRequested = true; // Client läuft solange true
 	
 	private POP3_Server_Commands server_commands;
+	ServerAccountManagement serverAccountManagement;
 	
 	private static int emailID = 0;
 
@@ -61,10 +62,10 @@ class POP3Client extends Thread{
 	 * "AUTOMATISIERTER KONSTRUKTOR" --> Beim erstellen eines Objektes wird alles weitere automatisch ausgeführt
 	 * @param clientName
 	 */
-	POP3Client(String clientName, POP3_Server_Commands server_commands) {
-		this.clientName = clientName;
+	POP3Client(String currentUser, POP3_Server_Commands server_commands) {
+		this.currentUser = currentUser;
 		
-		getInfos(); //Zu dem übergebnen clientName die Konten heraus suchen
+		//getInfos(); //Zu dem übergebnen clientName die Konten heraus suchen
 		
 		//Verzeichnnis erstellen
 		try {
@@ -75,23 +76,36 @@ class POP3Client extends Thread{
 		
 		this.server_commands = server_commands;
 	}
+	//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	
+	
+	//*******************************SETTER********************************************
+	/*
+	 * Mit ServerAccountManagment bekannt machen
+	 * @param ServerAccountManagement serverAccountManagement - Ist eine Klasse
+	 */
+	public void setServerAccountManagement(ServerAccountManagement serverAccountManagement) {
+		this.serverAccountManagement = serverAccountManagement;		
+	}
+	//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	
 	
 	//*********************** METHODEN *******************************
 	
 	/**
 	 * Beschafft die Kontoinformationen zu dem im Konstruktor übergebenen clientName
 	 */
-	private void getInfos() {
-		for(Map.Entry<Info, String> pair : ServerAccountManagement.getAbbildung().entrySet()) {
-				if(pair.getValue().compareTo(clientName) == 0) {
-					infos.add(pair.getKey());
-			}
-		}
-		//Falls kein client mit dem übergebenen clientName übereinstimmt
-		if(infos.isEmpty()) {
-			throw new IllegalArgumentException("Das '" + clientName + "' ist nicht vorhanden!");
-		}
-	}
+//	private void getInfos() {
+//		for(Map.Entry<Info, String> pair : ServerAccountManagement.getAbbildung().entrySet()) {
+//				if(pair.getValue().compareTo(clientName) == 0) {
+//					infos.add(pair.getKey());
+//			}
+//		}
+//		//Falls kein client mit dem übergebenen clientName übereinstimmt
+//		if(infos.isEmpty()) {
+//			throw new IllegalArgumentException("Das '" + clientName + "' ist nicht vorhanden!");
+//		}
+//	}
 	
 	/**
 	 * Programm start
@@ -104,93 +118,111 @@ class POP3Client extends Thread{
 		while (serviceRequested) {
 			// für alle Konten des clienten, also für alle 'INFO' Objekte eine
 			// Verbindung aufbauen und die Emails holen
-			for (Info i : infos) {
-				try {
-					//****************************** VERBINDUNGSAUFBAU **************************************************
-					
-					Socket socket = verbindungAufbauen(i.getIp(), i.getServerPort());
-					
-					System.out.println("TCP-Client hat sich verbunden!");
-					System.out.println("TCP-CLient beschafft Email von Emailadresse: "	+ i.getKontoName());
+//			for (Info i : infos) {
+			for(Map.Entry<List<Object>, String> account : serverAccountManagement.getAccountMap().entrySet()) {
+				
+				//TODO: WICHTIG IST DEN CURRENTUSER NOCH ZU ERMITTELN
+				if (account.getValue().compareTo(currentUser) == 0) {
+					try {
+						//****************************** VERBINDUNGSAUFBAU **************************************************
+						/**
+						 * index(0) => ip
+						 * index(1) => port
+		 				 * index(2) => kontoname
+		 				 * index(3) => password	 
+						 */							
+						
+						//Socket socket = verbindungAufbauen(i.getIp(), i.getServerPort());
+						Socket socket = verbindungAufbauen((String)account.getKey().get(0), (Integer)account.getKey().get(1));
+						
+						System.out.println("TCP-Client hat sich verbunden!");
+//						System.out.println("TCP-CLient beschafft Email von Emailadresse: "	+ i.getKontoName());
+						System.out.println("TCP-CLient beschafft Email von Emailadresse: "	+ account.getKey().get(2));
 
-					//*********************************** AUTHENTIFIZIERUNG **********************************************
-					
-					boolean a = authentifizierung(i.getKontoName(), i.getPassword());
-					
-					if(! a) {
-						System.err.println("Authentifizierung fehlgeschlagen, Benutzername oder Passwort falsch bei Konto: " + i.getKontoName());
-						continue;
-					}
-					
-					System.out.println("TCP-Client hat sich erfolgreich eingeloggt bei " + i.getKontoName());
+						//*********************************** AUTHENTIFIZIERUNG **********************************************
+						
+						//boolean a = authentifizierung(i.getKontoName(), i.getPassword());
+						boolean a = authentifizierung((String)account.getKey().get(2), (String)account.getKey().get(3));
+						
+						if(!a) {
+							//System.err.println("Authentifizierung fehlgeschlagen, Benutzername oder Passwort falsch bei Konto: " + i.getKontoName());
+							System.err.println("Authentifizierung fehlgeschlagen, Benutzername oder Passwort falsch bei Konto: " + account.getKey().get(2));
+							continue;
+						}
+						
+						//System.out.println("TCP-Client hat sich erfolgreich eingeloggt bei " + i.getKontoName());
+						System.out.println("TCP-Client hat sich erfolgreich eingeloggt bei " + account.getKey().get(2));
 
-					//*********************************** EMAIL BESCHAFFUNG **********************************************
-					
-					//Gibt Auskunft über das Konto an --> +OK mailbox ... has anzahl nachrichten
-					answerFromServer = readFromServer();
-					
-					//Nachschauen wieviele ungelesenen Emails vorhanden sind
-					writeToServer("STAT"); //Befehl gibt uns die Anzahl an Emails und Anzahlder Zeichen aus
-					
-					answerFromServer = readFromServer(); //+OK Anzahl und Zeichen
-					
-					//Extrahiert die Anzahl der Emails aus dem String
-					int anzahlDerEmails = gibMirAnzahlDerMails(answerFromServer);
-					
-					//Falls keine Mails da sind, dann ist das nächste Konto dran
-					if(anzahlDerEmails == 0) {
-						//stat 0 0 --> Anzahl 0 und anzahl enthaltener Zeichen 0
-						continue; //Wir gehen einen Durchlauf weiter, zum nächsten
-					}
-					
-					//Ist die Anzahl != 0, dann wollen wir die Emails holen und abspeichern
-					//Schleife um alle Mails auszulesen und abzuspeichern
-					for(int j = 1; j <= anzahlDerEmails; j++) {
-						//Befehl zum erhalten der Mail an den Server schicken
-						writeToServer("RETR " + j);
+						//*********************************** EMAIL BESCHAFFUNG **********************************************
 						
-						//Puffer für den Text
-						List<String> pufferListe = new ArrayList<>();
+						//Gibt Auskunft über das Konto an --> +OK mailbox ... has anzahl nachrichten
+						answerFromServer = readFromServer();
 						
-						boolean flag = true;
+						//Nachschauen wieviele ungelesenen Emails vorhanden sind
+						writeToServer("STAT"); //Befehl gibt uns die Anzahl an Emails und Anzahlder Zeichen aus
 						
-						//komplette Mail auslesen
-						//TODO: Klappt noch nicht ganz
-						//while(! (readFromServer().contains("\r\n"))) --> ENDLOSSCHLEIFE !
-						while(flag) {							
-							String answer = readFromServer();
+						answerFromServer = readFromServer(); //+OK Anzahl und Zeichen
+						
+						//Extrahiert die Anzahl der Emails aus dem String
+						int anzahlDerEmails = gibMirAnzahlDerMails(answerFromServer);
+						
+						//Falls keine Mails da sind, dann ist das nächste Konto dran
+						if(anzahlDerEmails == 0) {
+							//stat 0 0 --> Anzahl 0 und anzahl enthaltener Zeichen 0
+							continue; //Wir gehen einen Durchlauf weiter, zum nächsten
+						}
+						
+						//Ist die Anzahl != 0, dann wollen wir die Emails holen und abspeichern
+						//Schleife um alle Mails auszulesen und abzuspeichern
+						for(int j = 1; j <= anzahlDerEmails; j++) {
+							//Befehl zum erhalten der Mail an den Server schicken
+							writeToServer("RETR " + j);
 							
-							//deleteDoubleDots(answer);
+							//Puffer für den Text
+							List<String> pufferListe = new ArrayList<>();
 							
-							pufferListe.add(answer);
+							boolean flag = true;
 							
-							//WENN wir eine ZEILE mit nur einem PUNKT bekommen, sind wir durch
-							//SIEHE RN FOLIE 2 ab SEITE 26 BEISPIELE
-							if(answer.startsWith(".")) {
-								if(checkIfLastDot(answer)) {
-									flag = false;
+							//komplette Mail auslesen
+							//TODO: Klappt noch nicht ganz
+							//while(! (readFromServer().contains("\r\n"))) --> ENDLOSSCHLEIFE !
+							while(flag) {							
+								String answer = readFromServer();
+								
+								//deleteDoubleDots(answer);
+								
+								pufferListe.add(answer);
+								
+								//WENN wir eine ZEILE mit nur einem PUNKT bekommen, sind wir durch
+								//SIEHE RN FOLIE 2 ab SEITE 26 BEISPIELE
+								if(answer.startsWith(".")) {
+									if(checkIfLastDot(answer)) {
+										flag = false;
+									}
 								}
 							}
+							//Email im Dateisystem abspeichern
+							speicherDieEmail(pufferListe, ++emailID);
+							
+							//markiert die zu löschende Mail
+							writeToServer("DELE " + j);
 						}
-						//Email im Dateisystem abspeichern
-						speicherDieEmail(pufferListe, ++emailID);
 						
-						//markiert die zu löschende Mail
-						writeToServer("DELE " + j);
+						//beim quiten werden die durch DELE markierten Emails gelöscht
+						//writeToServer("QUIT");
+						
+						//notify -> server_commands (Emailverzeichnis aktualisieren)
+						server_commands.aktualisieren();
+						
+						//Verbindung wieder schließen
+						socket.close();
+						
+					} catch (IOException e) {
+						System.err.println("TCP Verbindung konnte zum Server nicht hergestellt werden");
 					}
-					
-					//beim quiten werden die durch DELE markierten Emails gelöscht
-					//writeToServer("QUIT");
-					
-					//notify -> server_commands (Emailverzeichnis aktualisieren)
-					server_commands.aktualisieren();
-					
-					//Verbindung wieder schließen
-					socket.close();
-					
-				} catch (IOException e) {
-					System.err.println("TCP Verbindung konnte zum Server nicht hergestellt werden");
 				}
+				
+
 			}
 		
 			try {

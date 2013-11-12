@@ -12,7 +12,12 @@ import java.util.Scanner;
 /**
  * Proconditions, fuer die Korrekte Schreibweise von Client an den Server
  * @author foxhound
- *
+ * Info:
+	 * Account definieren
+	 * index(0) => ip
+	 * index(1) => port
+	 * index(2) => kontoname
+	 * index(3) => password
  */
 
 class POP3_Server_Commands {
@@ -39,7 +44,7 @@ class POP3_Server_Commands {
 	  
 
 	 
-	 //******************************** PRIVATER KONSTRUKTOR ******************************************
+	 //******************************** KONSTRUKTOR ******************************************
 	 
 	 public POP3_Server_Commands(Path dirPath) {
 		 this.dirPath = dirPath;
@@ -58,7 +63,10 @@ class POP3_Server_Commands {
 	}
 	
 	//***************************SETTER***************************
-	//Mit ServerAccountManagment bekannt machen
+	/*
+	 * Mit ServerAccountManagment bekannt machen
+	 * @param ServerAccountManagement serverAccountManagement - Ist eine Klasse
+	 */
 	public void setServerAccountManagement(ServerAccountManagement serverAccountManagement) {
 		this.serverAccountManagement = serverAccountManagement;		
 	}
@@ -72,9 +80,10 @@ class POP3_Server_Commands {
 	 * @return
 	 */
 	 String user(String secondPartCommand) {		 
-		 for(Map.Entry<String, List<Object>> account : serverAccountManagement.getAccountMap().entrySet()) {
-			 if(account.getKey().compareTo(secondPartCommand) == 0) {
-				 currentUser = account.getKey();
+		 for(Map.Entry<List<Object>, String> account : serverAccountManagement.getAccountMap().entrySet()) {
+			 if(((String)account.getKey().get(2)).compareTo(secondPartCommand) == 0) {
+				 //currentUser = account.getKey();
+				 currentUser = (String) account.getKey().get(2);
 				 userFlag = true;
 				 return ok;
 			 }
@@ -94,9 +103,9 @@ class POP3_Server_Commands {
 	 */
 	String password(String secondPartCommand) {
 		if(userFlag == true) {
-			for(Map.Entry<String, List<Object>> account : serverAccountManagement.getAccountMap().entrySet()) {
-				 if(currentUser.compareTo(account.getKey()) == 0) {
-					 if(((String) account.getValue().get(3)).compareTo(secondPartCommand) == 0) {
+			for(Map.Entry<List<Object>, String> account : serverAccountManagement.getAccountMap().entrySet()) {
+				 if(currentUser.compareTo(((String)account.getKey().get(2))) == 0) {
+					 if(((String) account.getKey().get(3)).compareTo(secondPartCommand) == 0) {
 						 authenticationFlag = true;						 
 						 return ok;
 					 }
@@ -136,12 +145,15 @@ class POP3_Server_Commands {
 	 * @return
 	 */
 	String retr(String secondPartCommand) {
+		if(secondPartCommand.isEmpty()) {
+			return err + "\r\n";
+		}
 		if(authenticationFlag != true) {
 			return err; //nicht autorisiert
 		}
 		boolean exceptionFlag = true;
 		String exception = "-ERR invalid sequence number: " + secondPartCommand + "\r\n";
-		String result = ok + "\n";
+		String result = ok + "\r\n";
 		try {
 			int integer = Integer.parseInt(secondPartCommand);
 			String puffer = "";
