@@ -2,6 +2,8 @@ package proxyServer;
 
 import java.nio.file.Paths;
 
+//TODO: Wenn wir zwei verschiedene user zulassen wollen, dann müssen wir leider zwei serverAccountManagment erzeugen.
+
 /* IP: lab30.cpt.haw-hamburg.de
  * PORT: 11_000
  * Username: bai4rnpX
@@ -12,36 +14,53 @@ import java.nio.file.Paths;
  */
 
 public class ProxyServerFaktory {
-
-	//BenutzerDaten abspeichern --> Beispiel ACCOUNT
-//	private ServerAccountManagement account1 = new ServerAccountManagement("foxhound", "pop.gmx.de", 110, "flah_ahmad@gmx.de", "RN2013Huebner");
-//	private ServerAccountManagement account2 = new ServerAccountManagement("foxhound", "pop.gmx.net", 110, "dima888@gmx.net", "12345678");
-	private ServerAccountManagement serverAccountManagement = new ServerAccountManagement();
 	
-	//private POP3_Server_Commands server_commands = new POP3_Server_Commands(Paths.get("C:\\Users\\foxhound\\Desktop\\Emails"));
-	private POP3_Server_Commands server_commands = new POP3_Server_Commands(Paths.get("C:\\Users\\abg688.INFORMATIK\\Desktop\\Emails"));
+	
+	
+	String username = "foxhound";
+	String username2 = "flah";
+
+
+	private ServerAccountManagement serverAccountManagement = new ServerAccountManagement();
+//	private ServerAccountManagement serverAccountManagement2 = new ServerAccountManagement();
+	
+	private POP3_Server_Commands server_commands = new POP3_Server_Commands();
 	
 	private void starteClient() {
-		POP3Client client = new POP3Client("foxhound", server_commands);
+		POP3Client client = new POP3Client(username, server_commands);
 		client.setServerAccountManagement(serverAccountManagement);
 		client.start();
+		
+//		POP3Client client2 = new POP3Client(username2, server_commands);
+//		client2.setServerAccountManagement(serverAccountManagement2);
+//		client2.start();
 	}
 	
 	private void starteServer() {
-		POP3Server server = new POP3Server(server_commands);
+		//POP3Server server = new POP3Server(server_commands);
+		POP3Server server = new POP3Server();
+		server.setServerAccountManagement(serverAccountManagement); //neu
+		server.setPOP3_Server_Commands(server_commands);
 	}
 	
 	private void starteProxyServer() {
-		this.starteClient();
-		this.server_commands.aktualisieren();	
 		this.server_commands.setServerAccountManagement(serverAccountManagement); //neu
-		this.starteServer();
+		this.server_commands.aktualisieren();	
+
+		this.starteClient();
+		this.starteServer();		
 	}
 	
 	private void setAccounts() {
-		serverAccountManagement.setAccount("foxhound", "pop.gmx.net", 110, "dima888@gmx.net", "12345678");
-		//serverAccountManagement.setAccount("Al", "pop.gmx.de", 110, "flah_ahmad@gmx.de", "RN2013Huebner"); //PW -> -_-
+		serverAccountManagement.setAccount(username, "pop.gmx.net", 110, "dima888@gmx.net", "12345678", Information.aiLab11DimExtra);
+		serverAccountManagement.setAccount(username, "pop.gmx.de", 110, "flah_ahmad@gmx.de", "RN2013Huebner", Information.aiLab11DimExtra); 
 	}
+	
+//	public void initialize() {
+//		
+//	}
+	
+
 	
 	public void startTheProgramm() {
 		// ProxyServer erstellen

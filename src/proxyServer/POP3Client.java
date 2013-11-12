@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ import java.util.Scanner;
 class POP3Client extends Thread{
 	
 	//*********************** ATTRIBUTE *****************************
-	private String currentUser; //client
+	private String client; //client
 	//Liste mit den Kontoinformationen für das jeweilige Konto
 	//private List<Info> infos = new ArrayList<>();
 	
@@ -56,24 +57,15 @@ class POP3Client extends Thread{
 	ServerAccountManagement serverAccountManagement;
 	
 	private static int emailID = 0;
+	
 
 	//********************** KONSTRUKTOR *****************************
 	/**
 	 * "AUTOMATISIERTER KONSTRUKTOR" --> Beim erstellen eines Objektes wird alles weitere automatisch ausgeführt
 	 * @param clientName
 	 */
-	POP3Client(String currentUser, POP3_Server_Commands server_commands) {
-		this.currentUser = currentUser;
-		
-		//getInfos(); //Zu dem übergebnen clientName die Konten heraus suchen
-		
-		//Verzeichnnis erstellen
-		try {
-			Files.createDirectory(server_commands.getDirPath());
-		} catch (IOException e) {
-			System.err.println("Verzeichnis existiert bereits unter " + server_commands.getDirPath().toString() + "!");
-		}
-		
+	POP3Client(String client, POP3_Server_Commands server_commands) {
+		this.client = client;
 		this.server_commands = server_commands;
 	}
 	//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -107,7 +99,7 @@ class POP3Client extends Thread{
 			for(Map.Entry<List<Object>, String> account : serverAccountManagement.getAccountMap().entrySet()) {
 				
 				//TODO: WICHTIG IST DEN CURRENTUSER NOCH ZU ERMITTELN
-				if (account.getValue().compareTo(currentUser) == 0) {
+				if (account.getValue().compareTo(client) == 0) {
 					try {
 						//****************************** VERBINDUNGSAUFBAU **************************************************
 
@@ -299,7 +291,7 @@ class POP3Client extends Thread{
 	 */
 	private void speicherDieEmail(List<String> email, int emailNummer) throws IOException {
 		//VerzeichnisPfad holen und Dateipfad dynamisch erzeugen
-		String path = server_commands.getDirPath().toFile().getAbsolutePath();
+		String path = serverAccountManagement.getDirPath().toFile().getAbsolutePath();
 		path += "\\";
 		
 		//DateiPfad erzeugen

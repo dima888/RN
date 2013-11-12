@@ -32,17 +32,20 @@ class POP3_Server_Commands {
 	  
 	  // PFad zum Verzeichnis, in dem wir die Emails speichern möchten -->
 	  // erstellt für uns ein Verzeichnis
-	  private Path dirPath;
-
-	  File f;
+//	  private Path dirPath;
+//	  File f;
 	  
 
 	 
 	 //******************************** KONSTRUKTOR ******************************************
 	 
 	 public POP3_Server_Commands(Path dirPath) {
-		 this.dirPath = dirPath;
-		 f = new File(dirPath.toString());
+//		 this.dirPath = dirPath;
+//		 f = new File(dirPath.toString());
+//		 aktualisieren();
+	 }
+	 
+	 public POP3_Server_Commands() {
 //		 aktualisieren();
 	 }
 	 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -52,9 +55,9 @@ class POP3_Server_Commands {
 		return emailMap;
 	}
 	
-	public Path getDirPath() {
-		return dirPath;
-	}
+//	public Path getDirPath() {
+//		return dirPath;
+//	}
 	
 	//***************************SETTER***************************
 	/*
@@ -367,8 +370,8 @@ class POP3_Server_Commands {
 			return deletedMails;
 		}
 		
-		public void aktualisieren() {
-			for (File i : f.listFiles()) {
+		public void aktualisieren() {			
+			for (File i : serverAccountManagement.f.listFiles()) {
 				char[] puffer = i.getName().toCharArray();
 				String result = "";
 				for (int j = 6; j < puffer.length; j++) {

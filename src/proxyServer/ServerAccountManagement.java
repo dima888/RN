@@ -1,5 +1,9 @@
 package proxyServer;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,12 +22,10 @@ class ServerAccountManagement  {
 	private Map<List<Object>, String> accountMap = new HashMap<>(); //String(0) => KONTONAME; List = {ip, port, KONTONAME, PASSWORD}
 	private List<Object> infoList = new ArrayList<>();
 	
-	//*******************Konstruktoren**************************
-	public ServerAccountManagement(String clientName, String ip, int serverPort, String kontoname, String password) {
-//		Info information = new Info(ip, serverPort, KONTONAME, PASSWORD);
-//		abbildung.put(information, clientName);
-	}
+	  private Path dirPath;
+	  File f;
 	
+	//*******************Konstruktoren**************************
 	public ServerAccountManagement() {
 		
 	}
@@ -31,6 +33,10 @@ class ServerAccountManagement  {
 	
 	
 	//*****************************GETTER*******************************************
+	public Path getDirPath() {
+		return dirPath;
+	}
+	
 	public String getIpFrom(String clientName) {
 		String result = "NULL";
 		for(Map.Entry<List<Object>, String> account : accountMap.entrySet()) {
@@ -88,10 +94,21 @@ class ServerAccountManagement  {
 	 * @param String KONTONAME - eine email-Adresse
 	 * @param String PASSWORD - zur email-Adresse das benötigte Passwort
 	 */
-	public void setAccount(String clientName, String ip, int port, String kontoname, String password) {
+	public void setAccount(String clientName, String ip, int port, String kontoname, String password, Path dirPath) {
 		infoList = new ArrayList<>(Arrays.asList(ip, port, kontoname, password));
 		accountMap.put(infoList, clientName);
+		this.dirPath = dirPath;
+		f = new File(this.dirPath.toString());
 		System.out.println(accountMap);
+		
+		//Verzeichnnis erstellen
+		try {
+//			Files.createDirectory(server_commands.getDirPath());
+			Files.createDirectory(this.dirPath);
+		} catch (IOException e) {
+//			System.err.println("Verzeichnis existiert bereits unter " + server_commands.getDirPath().toString() + "!");
+			System.err.println("Verzeichnis existiert bereits unter " + this.dirPath + "!");
+		}
 	}
 
 }

@@ -19,8 +19,23 @@ class POP3Server {
 	 // Auf diesen Port wird "gelauscht"
 	
 	POP3_Server_Commands server_commands;	
+	ServerAccountManagement serverAccountManagement;
 	
 	// *********************GETTER**********************
+	
+	//**********************SETTER**********************
+	/*
+	 * Mit ServerAccountManagment bekannt machen
+	 * @param ServerAccountManagement serverAccountManagement - Ist eine Klasse
+	 */
+	public void setServerAccountManagement(ServerAccountManagement serverAccountManagement) {
+		this.serverAccountManagement = serverAccountManagement;		
+	}
+	
+	public void setPOP3_Server_Commands(POP3_Server_Commands server_commands) {
+		this.server_commands = server_commands;
+		startePOP3_Server();
+	}
 	
 	
 	//********************** KONSTRUKTOR *****************************	
@@ -29,6 +44,11 @@ class POP3Server {
 		this.server_commands = server_commands;
 		startePOP3_Server();
 	}
+	
+	POP3Server() {
+	}
+	
+	
 	
 	//*********************** METHODEN *******************************	
 	
@@ -50,7 +70,7 @@ class POP3Server {
 				connectionSocket = welcomeSocket.accept();
 				
 				// Neuen Arbeits-Thread erzeugen und starten mit übergebenen Socket
-				(new POP3_Server_Thread(connectionSocket, server_commands.getDirPath())).start();
+				(new POP3_Server_Thread(connectionSocket, serverAccountManagement.getDirPath())).start();
 			}
 			
 		} catch (IOException e) {
