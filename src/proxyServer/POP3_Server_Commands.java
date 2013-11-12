@@ -20,6 +20,13 @@ class POP3_Server_Commands {
 	  final String ok = "+OK";
 	  final String err = "-ERR";
 	  
+	  boolean userFlag = false; //user hat sich angemeldet bei true
+	  boolean passFlag = false; // Passwort wurde akzeptiert bei true -> authenticationFlag = true
+	  boolean authenticationFlag  = false; //Bei true ist man eingelogt
+	  
+	  String currentUser = ""; //Aktuell eingeloggte User 
+	  private ServerAccountManagement serverAccountManagement;
+	  	  
 	  //static int emailNumber = 0;
 	  private Map<File , Integer> emailMap = new HashMap<>();
 	  private Map<File , Integer> deletedMails = new HashMap<>();
@@ -30,8 +37,7 @@ class POP3_Server_Commands {
 
 	  File f;
 	  
-	  String currentUser = ""; //Aktuell eingeloggte User 
-	  private ServerAccountManagement serverAccountManagement;
+
 	 
 	 //******************************** PRIVATER KONSTRUKTOR ******************************************
 	 
@@ -69,6 +75,7 @@ class POP3_Server_Commands {
 		 for(Map.Entry<String, List<Object>> account : serverAccountManagement.getAccountMap().entrySet()) {
 			 if(account.getKey().compareTo(secondPartCommand) == 0) {
 				 currentUser = account.getKey();
+				 userFlag = true;
 				 return ok;
 			 }
 		 }		 		 
@@ -86,13 +93,18 @@ class POP3_Server_Commands {
 	 * @return
 	 */
 	String password(String secondPartCommand) {
-		 for(Map.Entry<String, List<Object>> account : serverAccountManagement.getAccountMap().entrySet()) {
-			 if(currentUser.compareTo(account.getKey()) == 0) {
-				 if(((String) account.getValue().get(3)).compareTo(secondPartCommand) == 0) {
-					 return ok;
+		if(userFlag == true) {
+			for(Map.Entry<String, List<Object>> account : serverAccountManagement.getAccountMap().entrySet()) {
+				 if(currentUser.compareTo(account.getKey()) == 0) {
+					 if(((String) account.getValue().get(3)).compareTo(secondPartCommand) == 0) {
+						 authenticationFlag = true;						 
+						 return ok;
+					 }
 				 }
 			 }
-		 }
+			userFlag = false;
+		}
+		 
 		
 //		if(POP3Server.getPassword().compareTo(secondPartCommand) == 0) {
 //			return ok;
@@ -105,7 +117,9 @@ class POP3_Server_Commands {
 	 * @return
 	 */
 	String rset() {
-		
+		if(authenticationFlag != true) {
+			return err; //nicht autorisiert
+		}
 		for(Map.Entry<File, Integer> pair : deletedMails.entrySet()) {
 			emailMap.put(pair.getKey(), pair.getValue());
 			deletedMails.remove(pair.getKey());
@@ -122,6 +136,9 @@ class POP3_Server_Commands {
 	 * @return
 	 */
 	String retr(String secondPartCommand) {
+		if(authenticationFlag != true) {
+			return err; //nicht autorisiert
+		}
 		boolean exceptionFlag = true;
 		String exception = "-ERR invalid sequence number: " + secondPartCommand + "\r\n";
 		String result = ok + "\n";
@@ -169,6 +186,9 @@ class POP3_Server_Commands {
 
 	//TODO: Kommentieren
 	String noop() {
+		if(authenticationFlag != true) {
+			return err; //nicht autorisiert
+		}
 		return ok;
 	}
 	  
@@ -179,6 +199,9 @@ class POP3_Server_Commands {
 	 * @return
 	 */
 	String dele(String secondPartCommand) {
+		if(authenticationFlag != true) {
+			return err; //nicht autorisiert
+		}
 		boolean exceptionFlag = true;
 		String exception = "-ERR invalid sequence number: " + secondPartCommand + "\r\n";
 		String result = ok + "\r\n";
@@ -226,6 +249,9 @@ class POP3_Server_Commands {
 	  * @return
 	  */
 	 String list(String secondPartCommand) {
+			if(authenticationFlag != true) {
+				return err; //nicht autorisiert
+			}
 		String exception = "-ERR invalid sequence number:" + secondPartCommand + "\r\n";
 		String result = ok + " ";		
 		boolean exceptionFlag = true;
@@ -256,7 +282,10 @@ class POP3_Server_Commands {
 	  * Liefert den Status der Mailbox, u.a. die Anzahl aller E-Mails im Postfach und deren Gesamtgröße (in Byte).
 	  * @return result - fertiger String mit den oben genannten infos
 	  */
-	  String stat()  {	 
+	  String stat()  {
+			if(authenticationFlag != true) {
+				return err; //nicht autorisiert
+			}
 		 String result = ok + " ";
 		 int count = 0;
 		 int completeLengh = 0;
@@ -291,6 +320,9 @@ class POP3_Server_Commands {
 	   * Liefert die eindeutigen ID's der Mails zurück
 	   */
 	  String uidl(String secondPartCommand) {
+			if(authenticationFlag != true) {
+				return err; //nicht autorisiert
+			}
 			String result = ok + " ";
 			String exception = "-ERR invalid sequence number:" + secondPartCommand + "\r\n";
 			boolean exceptionFlag = true;
