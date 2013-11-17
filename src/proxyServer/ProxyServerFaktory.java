@@ -52,8 +52,8 @@ public class ProxyServerFaktory {
 	}
 	
 	private void setAccounts() {
-		serverAccountManagement.setAccount(username, "pop.gmx.net", 110, "dima888@gmx.net", "12345678", Information.aiLab11DimExtra);
-		serverAccountManagement.setAccount(username, "pop.gmx.de", 110, "flah_ahmad@gmx.de", "RN2013Huebner", Information.aiLab11DimExtra); 
+		serverAccountManagement.setAccount(username, "pop.gmx.net", 110, "dima888@gmx.net", "12345678", Information.dimHome);
+		//serverAccountManagement.setAccount(username, "pop.gmx.de", 110, "flah_ahmad@gmx.de", "RN2013Huebner", Information.dimHome); 
 	}
 	
 //	public void initialize() {
