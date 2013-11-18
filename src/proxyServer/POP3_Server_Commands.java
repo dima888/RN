@@ -133,7 +133,7 @@ class POP3_Server_Commands {
 	 * @param secondPartCommand
 	 * @return
 	 */
-	String retr(String secondPartCommand) {
+	String retr(String secondPartCommand, POP3_Server_Thread thread) {
 		if(secondPartCommand.isEmpty()) {
 			return err + "\r\n";
 		}
@@ -141,56 +141,33 @@ class POP3_Server_Commands {
 			return err; //nicht autorisiert
 		}
 		boolean exceptionFlag = true;
+		String result = ok + " ";
 		String exception = "-ERR invalid sequence number: " + secondPartCommand + "\r\n";
-		String result = ok + "\r\n";
 		try {
 			int integer = Integer.parseInt(secondPartCommand);
-			String puffer = "";
+			
 			
 			for (Map.Entry<File, Integer> pair : emailMap.entrySet()) {
 				if (integer == pair.getValue()) {
 					exceptionFlag = false;
 					// Datei auslesen
+//					thread.writeToClient("+OK " + pair.getKey().length());
+					result += pair.getKey().length() + "\r\n";
 					Scanner scanner = new Scanner(pair.getKey());
+					
+//					System.out.println(result);
 					while (scanner.hasNextLine()) {
 						
-						char[] firstWord = scanner.next().toCharArray();
-						char firstToken = firstWord[0];
+						String currentLine = scanner.nextLine();											
 						
-						if(firstToken == '.') {
-							result += '.';
-							
-							//Den Punkt am Ende hinzu fuegen
-							if(!scanner.hasNextLine()) {
-								result += scanner.nextLine() + "\r\n.";
-							} else {
-								result += scanner.nextLine() + "\r\n";
-							}
-							
+						//Nach einen Punkt am Anfang pruefen
+						if(currentLine.startsWith(".")) {
+							result += "." + currentLine;
 						} else {
-							//Den Punkt am Ende hinzu fuegen
-							if(!scanner.hasNextLine()) {
-								result += scanner.nextLine() + "\r\n.";
-							} else {
-								result += scanner.nextLine() + "\r\n";
-							}
+							result += currentLine;
 						}
 						
-						
-						//puffer += scanner.nextLine() + "\r\n";
-						//result += scanner.nextLine() + "\r\n";
-//						System.out.println("ZEILE GEHOLT :" + puffer);
-//						Zum verdoppeln aller Punkte, bis auf den letzten
-//						TODO ETWAS EFFIZIENTERES DRAUS MACHEN
-//						for(char c : puffer.toCharArray()) {
-//							if(! (c == '.')) {
-//								System.out.println("KEIN PUNKT, ALSO DIREKT HINZUFÜGEN: " + c);
-//								result += c;
-//							} else {
-//								System.out.println("PUNKT GEFUNDEN, VERDOPPELN: " + c + '.');
-//								result += c + '.';
-//							}
-//						}
+						result += "\r\n";
 					}
 					scanner.close();
 					//Löscht die Mails vom "Server" --> vom Dateisystem
@@ -199,14 +176,15 @@ class POP3_Server_Commands {
 				}
 			}
 
-			if (exceptionFlag) {
-				return exception; // Postcondition
-			}
+		if (exceptionFlag) {
+			return exception; // Postcondition
+		}
 
 		} catch (Exception e) {
 			//return exception;
 		}
-		return result + "\r\n";
+		result += ".\r\n";
+		return result;
 	}
 
 	//TODO: Kommentieren

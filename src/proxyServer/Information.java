@@ -26,9 +26,15 @@ public class Information {
 	
 	//Computer path informations
 	public static Path aiLab11DimExtra = Paths.get("C:\\Users\\abg688.INFORMATIK\\Desktop\\EmailOrdner\\foxMail"); //Keine Ahnung warum so
+	public static Path laptopDim = Paths.get("C:\\Users\\dima\\Desktop\\EmailOrdner"); //Keine Ahnung warum so
 	public static Path aiLab11Dim = Paths.get("C:\\Users\\abg688\\Desktop\\EmailOrdner\\foxMail");
 	public static Path dimHome = Paths.get("C:\\Users\\foxhound\\Desktop\\EmailOrdner\\foxMail");
 	public static Path aiLab11Flah = Paths.get("C:\\Users\\abh840\\Desktop\\EmailOrdner\\foxMail");
+	
+	
+	public static Path lab30 = Paths.get("C:\\Users\\abh840\\Desktop\\EmailOrdner\\foxMail");
+	
+	
 
 	
 }

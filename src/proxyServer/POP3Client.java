@@ -147,35 +147,26 @@ class POP3Client extends Thread{
 							//Befehl zum erhalten der Mail an den Server schicken
 							writeToServer("RETR " + j);
 							
+							String beginn = readFromServer() + "\n";
+							
 							//Puffer für den Text
 							List<String> pufferListe = new ArrayList<>();
-							
+//							pufferListe.add(beginn);
 							boolean flag = true;
 							
 							//komplette Mail auslesen
 							//TODO: Klappt noch nicht ganz
 							//while(! (readFromServer().contains("\r\n"))) --> ENDLOSSCHLEIFE !
 							while(flag) {							
-								String answer = readFromServer();
-								System.out.println("ANSWER = " + answer); 
-								
+								String answer = readFromServer();							
 								String modifiedAnswer = deleteDoubleDots(answer);
-								System.out.println("Answer = " + answer);
-								System.out.println("Modified Answer = " + modifiedAnswer);
 								pufferListe.add(modifiedAnswer);								
 								
-								if(checkIfLastDot(answer) == true) {
-									System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+								//WENN wir eine ZEILE mit nur einem PUNKT bekommen, sind wir durch
+								if(checkIfLastDot(answer) == true) {									
 									flag = false;
 								}
-								
-								//WENN wir eine ZEILE mit nur einem PUNKT bekommen, sind wir durch
-								//SIEHE RN FOLIE 2 ab SEITE 26 BEISPIELE
-//								if(answer.startsWith(".")) {
-//									if(checkIfLastDot(modifiedAnswer)) {
-//										flag = false;
-//									}
-//								}
+
 							}
 							//Email im Dateisystem abspeichern
 							speicherDieEmail(pufferListe, ++emailID);
@@ -328,31 +319,26 @@ class POP3Client extends Thread{
 	 */
 	private boolean checkIfLastDot(String line) {				
 		char[] lineInCharArray = line.toCharArray();
-		System.out.println("length = " + lineInCharArray.length);
-		char lastTokenInLine = lineInCharArray[lineInCharArray.length-1];
+		//char lastTokenInLine = lineInCharArray[lineInCharArray.length-1];
 		
 		if(line.startsWith(".")) {
 			int i;
-			for(i = 1; i < lineInCharArray.length-1; i++) {
+			for(i = 1; i < lineInCharArray.length; i++) {
 				if(lineInCharArray[i] != ' ') {
 					
 				} else {
 					return false;
 				}
 			}
+			
+//			if(line.startsWith(".")) {
+//				if(line.matches("[a-zA-Z_0-9]+")) {
+//					return false;
+//				}
+			return true;
 		}
 		
-		return true;
-//		Scanner scanner = new Scanner(answer);
-//		scanner.nextLine(); //Auch der Punkt
-//		
-//		//überprüfen, ob nach dem Punkt noch etwas kommt
-//		try {
-//			scanner.next(); //Löst eine Exception aus, falls kein weiteres Element existiert
-//		} catch(NoSuchElementException e) {
-//			//System.out.println("SCANNER HAT NACH DEM PUNKT NICHTS MEHR GEFUNDEN!");									
-//			return true; //Schleife beenden, da Email komplett ausgelesen
-//		}		
+		return false;		
 	}
 	
 	/**
