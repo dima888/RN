@@ -153,8 +153,32 @@ class POP3_Server_Commands {
 					// Datei auslesen
 					Scanner scanner = new Scanner(pair.getKey());
 					while (scanner.hasNextLine()) {
+						
+						char[] firstWord = scanner.next().toCharArray();
+						char firstToken = firstWord[0];
+						
+						if(firstToken == '.') {
+							result += '.';
+							
+							//Den Punkt am Ende hinzu fuegen
+							if(!scanner.hasNextLine()) {
+								result += scanner.nextLine() + "\r\n.";
+							} else {
+								result += scanner.nextLine() + "\r\n";
+							}
+							
+						} else {
+							//Den Punkt am Ende hinzu fuegen
+							if(!scanner.hasNextLine()) {
+								result += scanner.nextLine() + "\r\n.";
+							} else {
+								result += scanner.nextLine() + "\r\n";
+							}
+						}
+						
+						
 						//puffer += scanner.nextLine() + "\r\n";
-						result += scanner.nextLine() + "\r\n";
+						//result += scanner.nextLine() + "\r\n";
 //						System.out.println("ZEILE GEHOLT :" + puffer);
 //						Zum verdoppeln aller Punkte, bis auf den letzten
 //						TODO ETWAS EFFIZIENTERES DRAUS MACHEN

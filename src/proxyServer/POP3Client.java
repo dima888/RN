@@ -74,7 +74,7 @@ class POP3Client extends Thread{
 	//*******************************SETTER********************************************
 	/*
 	 * Mit ServerAccountManagment bekannt machen
-	 * @param ServerAccountManagement serverAccountManagement - Ist eine Klasse
+	 * @param ServerAccountManagement serverAccountManagement - Eine Klasse
 	 */
 	public void setServerAccountManagement(ServerAccountManagement serverAccountManagement) {
 		this.serverAccountManagement = serverAccountManagement;		
@@ -157,18 +157,25 @@ class POP3Client extends Thread{
 							//while(! (readFromServer().contains("\r\n"))) --> ENDLOSSCHLEIFE !
 							while(flag) {							
 								String answer = readFromServer();
+								System.out.println("ANSWER = " + answer); 
 								
-								//deleteDoubleDots(answer);
+								String modifiedAnswer = deleteDoubleDots(answer);
+								System.out.println("Answer = " + answer);
+								System.out.println("Modified Answer = " + modifiedAnswer);
+								pufferListe.add(modifiedAnswer);								
 								
-								pufferListe.add(answer);
+								if(checkIfLastDot(answer) == true) {
+									System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+									flag = false;
+								}
 								
 								//WENN wir eine ZEILE mit nur einem PUNKT bekommen, sind wir durch
 								//SIEHE RN FOLIE 2 ab SEITE 26 BEISPIELE
-								if(answer.startsWith(".")) {
-									if(checkIfLastDot(answer)) {
-										flag = false;
-									}
-								}
+//								if(answer.startsWith(".")) {
+//									if(checkIfLastDot(modifiedAnswer)) {
+//										flag = false;
+//									}
+//								}
 							}
 							//Email im Dateisystem abspeichern
 							speicherDieEmail(pufferListe, ++emailID);
@@ -312,41 +319,63 @@ class POP3Client extends Thread{
 		fw.close();
 	}
 	
-	private boolean checkIfLastDot(String answer) {
-		Scanner scanner = new Scanner(answer);
-		scanner.nextLine(); //Auch der Punkt
+	/**
+	 *TODO: DIE METHODE NOCH ANPASSEN, DANN MUESSTE ES LAUFEN
+	 * Lieft true, wenn wir eine Zeile bekommen, die genau aus einen Punkt besteht. 
+	 * Der Punkt wird dann auch noch entfernt
+	 * @param Stirng line - Eine Zeile 
+	 * @return Boolean
+	 */
+	private boolean checkIfLastDot(String line) {				
+		char[] lineInCharArray = line.toCharArray();
+		System.out.println("length = " + lineInCharArray.length);
+		char lastTokenInLine = lineInCharArray[lineInCharArray.length-1];
 		
-		//überprüfen, ob nach dem Punkt noch etwas kommt
-		try {
-			scanner.next(); //Löst eine Exception aus, falls kein weiteres Element existiert
-		} catch(NoSuchElementException e) {
-			//System.out.println("SCANNER HAT NACH DEM PUNKT NICHTS MEHR GEFUNDEN!");									
-			return true; //Schleife beenden, da Email komplett ausgelesen
-		}
-		return false;
-	}
-	
-	private void deleteDoubleDots(String answer) {
-		String puffer = "";
-		
-		//Punkte suchen und verdoppeln, wenn es nicht der letzte ist
-		//Beispiel --> Mein Name. ist Flah. = Mein Name.. ist Flah.
-		int count = 0;
-		for(char c : answer.toCharArray()) {
-			if(count == 0) {
-				if(! (c == '.')) {
-					puffer += c;
+		if(line.startsWith(".")) {
+			int i;
+			for(i = 1; i < lineInCharArray.length-1; i++) {
+				if(lineInCharArray[i] != ' ') {
+					
 				} else {
-					count++;
-				}
-			} else {
-				if(! (c == '.')) {
-					puffer += c;
-				} else {
-					puffer += c;
+					return false;
 				}
 			}
 		}
+		
+		return true;
+//		Scanner scanner = new Scanner(answer);
+//		scanner.nextLine(); //Auch der Punkt
+//		
+//		//überprüfen, ob nach dem Punkt noch etwas kommt
+//		try {
+//			scanner.next(); //Löst eine Exception aus, falls kein weiteres Element existiert
+//		} catch(NoSuchElementException e) {
+//			//System.out.println("SCANNER HAT NACH DEM PUNKT NICHTS MEHR GEFUNDEN!");									
+//			return true; //Schleife beenden, da Email komplett ausgelesen
+//		}		
+	}
+	
+	/**
+	 * Methode entfernt den ersten Punkt im Satz
+	 * @param String line - Eine Zeile, die der Methode uebergeben wird, die modifiziert wird
+	 * @return String
+	 */
+	private String deleteDoubleDots(String line) {
+		String result = "";		
+		
+		char[] lineInCharArray = line.toCharArray();
+		char firstTokenInLine = lineInCharArray[0];
+		
+		if(firstTokenInLine == '.') {
+			int lineLength = lineInCharArray.length;
+			//Forschleife damit der Punkt entfernt wird
+			int i;
+			for(i = 1; i < lineLength; i++) {
+				result += lineInCharArray[i]; //Hier wird der erste Punkt entfernt
+			}
+			return result;
+		}		
+		return line;
 	}
 	
 	//Leitet unsere Anfragen an den Server weiter
