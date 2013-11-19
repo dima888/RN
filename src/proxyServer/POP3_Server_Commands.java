@@ -105,15 +105,21 @@ class POP3_Server_Commands {
 	 * @return
 	 */
 	String rset() {
+		String info = " maildrop has " + deletedMails.size() + " messages (";
+		int deletedMessageSize = 0;
 		if(authenticationFlag != true) {
 			return err + " invalide command in this state";
 		}
+		//Hier brauchen wir eine neue Map die wir uebergeben, sonst entsteht eine java.util.ConcurrentModificationException
+		Map<File, Integer> modifiedDeleteMailMap = new HashMap<>();
 		for(Map.Entry<File, Integer> pair : deletedMails.entrySet()) {
 			emailMap.put(pair.getKey(), pair.getValue());
 			deletedMails.remove(pair.getKey());
+			deletedMessageSize += pair.getKey().length();
 		}
-
-		return ok;
+		
+		//Info zusammenbauen und returnen		
+		return ok + info + deletedMessageSize + ")";
 	}
 	 
 	/**
@@ -198,10 +204,9 @@ class POP3_Server_Commands {
 			
 		}
 		boolean exceptionFlag = true;
-		String result = ok + "\r\n";
-
+		String result = ok + " message" + secondPartCommand + " deleted";
+		
 		try {
-
 			System.out.println("INHALT VON PARAMETER:" + secondPartCommand);
 			int integer = Integer.parseInt(secondPartCommand);
 			for (Map.Entry<File, Integer> pair : emailMap.entrySet()) {
@@ -217,10 +222,9 @@ class POP3_Server_Commands {
 		}
 
 		if (exceptionFlag) {
-			return exception; // Postcondition
+			return "-ERR message " +  secondPartCommand + " already deleted"; // Postcondition
 		}
 
-		//return result + "\r\n";
 		return result;
 	}
 
@@ -301,11 +305,13 @@ class POP3_Server_Commands {
 			count ++;
 		}
 		
-		Integer c = new Integer(count);
-		String emailCount = c.toString();
+		return result += count + " " + completeLengh;
 		
-		result += emailCount += " ";		
-		return result += completeLengh;
+//		Integer c = new Integer(count);
+//		String emailCount = c.toString();
+//		
+//		result += emailCount += " ";		
+//		return result += completeLengh;
 	}
 	  
 	  /**
@@ -363,7 +369,7 @@ class POP3_Server_Commands {
 		} catch (IOException e) {
 			System.out.println("Socket can not be closed!");
 		}
-		return ok + " POP SERVER SIGNING OFF";
+		return ok + " dewey POP3 server signing off";
 	}
 	
 	  

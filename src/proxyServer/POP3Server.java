@@ -98,41 +98,9 @@ class POP3Server {
 			this.socket = socket;
 			this.path = path;
 			this.threadNumber ++;
-		}		
+		}			
 		
-		/**
-		 * Methode Prueft ob die einkommenden Befehle von Client nach den RFC 1939 standarts sind
-		 * @param String clientCommand - Ein Befehl von Client den wir hier entgegen nehmen
-		 * @return String
-		 */
-		  private String checkAllCommand(String clientCommand) {
-			 Scanner scanner = new Scanner(clientCommand);
-			 String firstPartCommand = scanner.next();
-			 String secondPartCommand = "";
-			 
-			 if(scanner.hasNext()) {
-				 secondPartCommand = scanner.next();
-			 }
-			 
-			 
-			 switch(firstPartCommand.toLowerCase()) {
-			 //{user, pass, quit, stat, list, retr, dele, noop, rset}
-			 case "user" : return server_commands.user(secondPartCommand); 
-			 case "pass" : return server_commands.password(secondPartCommand); 
-			 case "quit" : return server_commands.quit(socket);
-			 case "stat" : return server_commands.stat(); 
-			 case "list" : if(secondPartCommand.isEmpty()) {return server_commands.list();} else {return server_commands.list(secondPartCommand);}
-			 case "retr" : return server_commands.retr(secondPartCommand);
-			 case "dele" : return server_commands.dele(secondPartCommand); 
-			 case "noop" : return server_commands.noop(); 
-			 case "rset" : return server_commands.rset();
-			 case "uidl" : if(secondPartCommand.isEmpty()) {return server_commands.uidl();} else {return server_commands.uidl(secondPartCommand);}
-			 default: return server_commands.err + " unknown command";
-			 
-			 }		
-		}
-		
-//		@Override
+		@Override
 		public void run() {
 			
 			
@@ -145,8 +113,8 @@ class POP3Server {
 				inFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				outToClient = new DataOutputStream(socket.getOutputStream());
 				
-				writeToClient("+OK Welcome\n");
-			
+				writeToClient("+OK POP3 server ready");				
+											
 					//Hier ist der login Mechanismus 
 					while(authentification()) {}
 					
@@ -193,10 +161,11 @@ class POP3Server {
 		private boolean authentification() throws IOException {
 			String clientRequest = readFromClient();
 			
-//			if(clientRequest.compareTo(":CAPA") == 0) {
-//				writeToClient("-ERR");
-//				return true;
-//			}
+			//CAPA abfangen
+			if(clientRequest.compareTo("CAPA\n") == 0) {
+				writeToClient("-ERR");
+				return true;
+			}
 			
 			if (checkAllCommand(clientRequest).compareTo(ok) == 0) {
 				writeToClient(ok + " Username accepted, password please\r\n");
@@ -209,9 +178,39 @@ class POP3Server {
 			}
 			writeToClient("authentification failed\r\n");
 			return true;
-		}
+		}		
 		
-
+		/**
+		 * Methode Prueft ob die einkommenden Befehle von Client nach den RFC 1939 standarts sind
+		 * @param String clientCommand - Ein Befehl von Client den wir hier entgegen nehmen
+		 * @return String
+		 */
+		  private String checkAllCommand(String clientCommand) {
+			 Scanner scanner = new Scanner(clientCommand);
+			 String firstPartCommand = scanner.next();
+			 String secondPartCommand = "";
+			 
+			 if(scanner.hasNext()) {
+				 secondPartCommand = scanner.next();
+			 }
+			 
+			 
+			 switch(firstPartCommand.toLowerCase()) {
+			 //{user, pass, quit, stat, list, retr, dele, noop, rset}
+			 case "user" : return server_commands.user(secondPartCommand); 
+			 case "pass" : return server_commands.password(secondPartCommand); 
+			 case "quit" : return server_commands.quit(socket);
+			 case "stat" : return server_commands.stat(); 
+			 case "list" : if(secondPartCommand.isEmpty()) {return server_commands.list();} else {return server_commands.list(secondPartCommand);}
+			 case "retr" : return server_commands.retr(secondPartCommand);
+			 case "dele" : return server_commands.dele(secondPartCommand); 
+			 case "noop" : return server_commands.noop(); 
+			 case "rset" : return server_commands.rset();
+			 case "uidl" : if(secondPartCommand.isEmpty()) {return server_commands.uidl();} else {return server_commands.uidl(secondPartCommand);}
+			 default: return server_commands.err + " unknown command";
+			 
+			 }		
+		}
 	}
 }
 
