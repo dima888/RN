@@ -18,6 +18,7 @@ class POP3_Server_Commands {
 
 	  final String ok = "+OK";
 	  final String err = "-ERR";
+	  final String exception = "-ERR no such message";
 	  
 	  boolean userFlag = false; //user hat sich angemeldet bei true
 	  boolean passFlag = false; // Passwort wurde akzeptiert bei true -> authenticationFlag = true
@@ -30,21 +31,8 @@ class POP3_Server_Commands {
 	  private Map<File , Integer> emailMap = new HashMap<>();
 	  private Map<File , Integer> deletedMails = new HashMap<>();
 	  
-	  // PFad zum Verzeichnis, in dem wir die Emails speichern möchten -->
-	  // erstellt für uns ein Verzeichnis
-//	  private Path dirPath;
-//	  File f;
-	  
 
-	 
-	 //******************************** KONSTRUKTOR ******************************************
-	 
-	 public POP3_Server_Commands(Path dirPath) {
-//		 this.dirPath = dirPath;
-//		 f = new File(dirPath.toString());
-//		 aktualisieren();
-	 }
-	 
+	 //******************************** KONSTRUKTOR ******************************************	 	 
 	 public POP3_Server_Commands() {
 //		 aktualisieren();
 	 }
@@ -54,13 +42,10 @@ class POP3_Server_Commands {
 	public Map<File , Integer> getEmailMap() {
 		return emailMap;
 	}
-	
-//	public Path getDirPath() {
-//		return dirPath;
-//	}
+
 	
 	//***************************SETTER***************************
-	/*
+	/**
 	 * Mit ServerAccountManagment bekannt machen
 	 * @param ServerAccountManagement serverAccountManagement - Ist eine Klasse
 	 */
@@ -76,10 +61,12 @@ class POP3_Server_Commands {
 	 * @param userName - Example: POP3Server.USER
 	 * @return
 	 */
-	 String user(String secondPartCommand) {		 
+	 String user(String secondPartCommand) {
+		 if(authenticationFlag == true) {
+			 return err + " invalide command in this state";
+		 }
 		 for(Map.Entry<List<Object>, String> account : serverAccountManagement.getAccountMap().entrySet()) {
 			 if(((String)account.getKey().get(Information.KONTONAME)).compareTo(secondPartCommand) == 0) {
-				 //currentUser = account.getKey();
 				 currentUser = (String) account.getKey().get(Information.KONTONAME);
 				 userFlag = true;
 				 return ok;
@@ -96,6 +83,9 @@ class POP3_Server_Commands {
 	 * @return
 	 */
 	String password(String secondPartCommand) {
+		 if(authenticationFlag == true) {
+			 return err + " invalide command in this state";
+		 }
 		if(userFlag == true) {
 			for(Map.Entry<List<Object>, String> account : serverAccountManagement.getAccountMap().entrySet()) {
 				 if(currentUser.compareTo(((String)account.getKey().get(Information.KONTONAME))) == 0) {
@@ -116,7 +106,7 @@ class POP3_Server_Commands {
 	 */
 	String rset() {
 		if(authenticationFlag != true) {
-			return err; //nicht autorisiert
+			return err + " invalide command in this state";
 		}
 		for(Map.Entry<File, Integer> pair : deletedMails.entrySet()) {
 			emailMap.put(pair.getKey(), pair.getValue());
@@ -133,16 +123,15 @@ class POP3_Server_Commands {
 	 * @param secondPartCommand
 	 * @return
 	 */
-	String retr(String secondPartCommand, POP3_Server_Thread thread) {
-		if(secondPartCommand.isEmpty()) {
-			return err + "\r\n";
-		}
+	String retr(String secondPartCommand) {
 		if(authenticationFlag != true) {
-			return err; //nicht autorisiert
+			return err + " invalide command in this state";
+		}
+		if(secondPartCommand.isEmpty()) {
+			return err;
 		}
 		boolean exceptionFlag = true;
 		String result = ok + " ";
-		String exception = "-ERR invalid sequence number: " + secondPartCommand + "\r\n";
 		try {
 			int integer = Integer.parseInt(secondPartCommand);
 			
@@ -183,14 +172,16 @@ class POP3_Server_Commands {
 		} catch (Exception e) {
 			//return exception;
 		}
-		result += ".\r\n";
-		return result;
+		return result += ".";
 	}
 
-	//TODO: Kommentieren
+	/**
+	 * 
+	 * @return
+	 */
 	String noop() {
 		if(authenticationFlag != true) {
-			return err; //nicht autorisiert
+			return err + " invalide command in this state";
 		}
 		return ok;
 	}
@@ -203,10 +194,10 @@ class POP3_Server_Commands {
 	 */
 	String dele(String secondPartCommand) {
 		if(authenticationFlag != true) {
-			return err; //nicht autorisiert
+			return err + " invalide command in this state";
+			
 		}
 		boolean exceptionFlag = true;
-		String exception = "-ERR invalid sequence number: " + secondPartCommand + "\r\n";
 		String result = ok + "\r\n";
 
 		try {
@@ -229,21 +220,34 @@ class POP3_Server_Commands {
 			return exception; // Postcondition
 		}
 
-		return result + "\r\n";
+		//return result + "\r\n";
+		return result;
 	}
 
 	 /**
 	  * liefert die Anzahl und die Größe der (n-ten) E-Mails.
-	  * @return
+	  * @return String
 	  */
 	  String list() {
-		 String result = ok + "\r\n";
+		  if(authenticationFlag != true) {
+				return err + " invalide command in this state";
+			}
+		 String result = "\r\n";
+		 String head = "";
+		 String body = "\r\n";
+		 int messageLength = 0;
 		 
 		for(Map.Entry<File, Integer> pair : emailMap.entrySet()) {
-			result += pair.getValue() + " " + pair.getKey().length() + "\r\n"; 
+			body += pair.getValue() + " " + pair.getKey().length() + "\r\n"; 
+			messageLength += pair.getKey().length();			
 		}
 		
-		 return result + ".\r\n";
+		//Head zusammenbauen
+		head += ok + " " + emailMap.size() + " messages (" + messageLength + " octets)";
+		
+		//Head und Body verbinden und ausgeben
+		return result = head + body + "\n.";
+		
 	}
 	
 	 /**
@@ -253,9 +257,8 @@ class POP3_Server_Commands {
 	  */
 	 String list(String secondPartCommand) {
 			if(authenticationFlag != true) {
-				return err; //nicht autorisiert
+				return err + " invalide command in this state";
 			}
-		String exception = "-ERR invalid sequence number:" + secondPartCommand + "\r\n";
 		String result = ok + " ";		
 		boolean exceptionFlag = true;
 
@@ -271,14 +274,14 @@ class POP3_Server_Commands {
 			}
 			
 			 if(exceptionFlag)  {
-				 return exception; //Postcondition
+				 return exception + ", only " + emailMap.size() + " messages in maildrop"; //Postcondition
 			 }
 
 		} catch (Exception e) {
+			//return exception + ", only " + emailMap.size() + " messages in maildrop";
 			return exception;
 		}
-
-		return result + ".\r\n";
+		return result;
 	}
 
 	 /**
@@ -287,7 +290,7 @@ class POP3_Server_Commands {
 	  */
 	  String stat()  {
 			if(authenticationFlag != true) {
-				return err; //nicht autorisiert
+				return err + " invalide command in this state";
 			}
 		 String result = ok + " ";
 		 int count = 0;
@@ -302,12 +305,12 @@ class POP3_Server_Commands {
 		String emailCount = c.toString();
 		
 		result += emailCount += " ";		
-		result += completeLengh + "\r\n";
-		return result;
+		return result += completeLengh;
 	}
 	  
 	  /**
 	   * Liefert die eindeutigen ID's der Mails zurück
+	   * @return String
 	   */
 	  String uidl() {
 			String result = ok + "\n";		
@@ -315,8 +318,7 @@ class POP3_Server_Commands {
 			for(Map.Entry<File, Integer> pair : emailMap.entrySet()) {
 				result += pair.getValue() + "\n";
 			}
-			
-			return result + ".\n";
+			return result + ".";
 	  }
 	  
 	  /**
@@ -327,7 +329,6 @@ class POP3_Server_Commands {
 				return err; //nicht autorisiert
 			}
 			String result = ok + " ";
-			String exception = "-ERR invalid sequence number:" + secondPartCommand + "\r\n";
 			boolean exceptionFlag = true;
 			
 			int integer = Integer.parseInt(secondPartCommand);
@@ -341,9 +342,8 @@ class POP3_Server_Commands {
 			
 			if(exceptionFlag) {
 				return exception;
-			}
-			
-			return result + "\n";
+			}			
+			return result;			
 	  }
 
 	 /**

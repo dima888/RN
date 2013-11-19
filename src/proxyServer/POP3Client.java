@@ -311,7 +311,6 @@ class POP3Client extends Thread{
 	}
 	
 	/**
-	 *TODO: DIE METHODE NOCH ANPASSEN, DANN MUESSTE ES LAUFEN
 	 * Lieft true, wenn wir eine Zeile bekommen, die genau aus einen Punkt besteht. 
 	 * Der Punkt wird dann auch noch entfernt
 	 * @param Stirng line - Eine Zeile 
