@@ -369,6 +369,7 @@ class POP3_Server_Commands {
 		} catch (IOException e) {
 			System.out.println("Socket can not be closed!");
 		}
+		authenticationFlag = false;
 		return ok + " dewey POP3 server signing off";
 	}
 	

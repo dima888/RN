@@ -120,8 +120,8 @@ class POP3Server {
 					
 					//Hier werden die Befehle von Client interpretiert; Server laeuft noch unendlich
 					while(true) {
-						String answer = checkAllCommand(readFromClient());
-						writeToClient(answer);
+						String request = checkAllCommand(readFromClient());
+						writeToClient(request);
 					}
 
 			} catch (IOException e) {
@@ -168,15 +168,18 @@ class POP3Server {
 			}
 			
 			if (checkAllCommand(clientRequest).compareTo(ok) == 0) {
-				writeToClient(ok + " Username accepted, password please\r\n");
+				//writeToClient(ok + " Username accepted, password please\r\n");
+				writeToClient(ok + " Username accepted, password please");
 				String clientRequestTwo = readFromClient();
 				
 				if (checkAllCommand(clientRequestTwo).compareTo(ok) == 0) {
-					writeToClient(ok + " Password accepted\r\n");
+					//writeToClient(ok + " Password accepted\r\n");
+					writeToClient(ok + " Password accepted");
 					return false;
 				}
 			}
-			writeToClient("authentification failed\r\n");
+			//writeToClient("authentification failed\r\n");
+			writeToClient("authentification failed");
 			return true;
 		}		
 		
