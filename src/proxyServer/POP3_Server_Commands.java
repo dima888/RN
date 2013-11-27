@@ -16,8 +16,8 @@ import java.util.Scanner;
 
 class POP3_Server_Commands {
 
-	  final String ok = "+OK";
-	  final String err = "-ERR";
+//	  final String ok = "+OK ";
+//	  final String err = "-ERR ";
 	  final String exception = "-ERR no such message";
 	  
 	  boolean userFlag = false; //user hat sich angemeldet bei true
@@ -36,7 +36,6 @@ class POP3_Server_Commands {
 	 public POP3_Server_Commands() {
 //		 aktualisieren();
 	 }
-	 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 	 //***************** GETTER ********************
 	public Map<File , Integer> getEmailMap() {
@@ -58,86 +57,86 @@ class POP3_Server_Commands {
 	/**
 	 * Prueft den Befehl user 
 	 * @param commad - Example: user Alf
-	 * @param userName - Example: POP3Server.USER
+	 * @param String userName - Ein username um auf eine bestimmte Email-Adresse zuzugreifen
 	 * @return
 	 */
 	 String user(String secondPartCommand) {
 		 if(authenticationFlag == true) {
-			 return err + " invalide command in this state";
+			 return Information.err + "invalide command in this state";
 		 }
 		 for(Map.Entry<List<Object>, String> account : serverAccountManagement.getAccountMap().entrySet()) {
 			 if(((String)account.getKey().get(Information.KONTONAME)).compareTo(secondPartCommand) == 0) {
 				 currentUser = (String) account.getKey().get(Information.KONTONAME);
 				 userFlag = true;
-				 return ok;
+				 return Information.ok;
 			 }
 		 }		 		 
-			return err;
+			return Information.err;
 		}
 
 
 	/**
 	 * Prueft den Befehl pass
 	 * @param command - Example: password Alf
-	 * @param userPassword - Example: POP3Server.PASS
-	 * @return
+	 * @param String userPassword - Ein Passwort um auf eine bestimmte Email-Adresse zuzugreifen
+	 * @return String
 	 */
 	String password(String secondPartCommand) {
 		 if(authenticationFlag == true) {
-			 return err + " invalide command in this state";
+			 return Information.err + "invalide command in this state";
 		 }
 		if(userFlag == true) {
 			for(Map.Entry<List<Object>, String> account : serverAccountManagement.getAccountMap().entrySet()) {
 				 if(currentUser.compareTo(((String)account.getKey().get(Information.KONTONAME))) == 0) {
 					 if(((String) account.getKey().get(Information.PASSWORD)).compareTo(secondPartCommand) == 0) {
 						 authenticationFlag = true;						 
-						 return ok;
+						 return Information.ok;
 					 }
 				 }
 			 }
 			userFlag = false;
 		}
-		return err;
+		return Information.err;
 	}	
 	 
 	/**
 	 * Macht die Markierungen durch den DELE Befehl rückgängig
-	 * @return
+	 * @return String
 	 */
 	String rset() {
-		String info = " maildrop has " + deletedMails.size() + " messages (";
-		int deletedMessageSize = 0;
+		String info = "maildrop has " + deletedMails.size() + " messages (";
+		int totalMessageSize = 0;
 		if(authenticationFlag != true) {
-			return err + " invalide command in this state";
-		}
-		//Hier brauchen wir eine neue Map die wir uebergeben, sonst entsteht eine java.util.ConcurrentModificationException
-		Map<File, Integer> modifiedDeleteMailMap = new HashMap<>();
-		for(Map.Entry<File, Integer> pair : deletedMails.entrySet()) {
-			emailMap.put(pair.getKey(), pair.getValue());
-			deletedMails.remove(pair.getKey());
-			deletedMessageSize += pair.getKey().length();
+			return Information.err + "invalide command in this state";
 		}
 		
-		//Info zusammenbauen und returnen		
-		return ok + info + deletedMessageSize + ")";
+		//Hier packen wir die markierten Mails wieder zurück in die mailMap
+		for(Map.Entry<File, Integer> pair : deletedMails.entrySet()) {
+			totalMessageSize += pair.getKey().length();
+			emailMap.put(pair.getKey(), pair.getValue());	
+		}
+		
+		//HashMap leeren
+		deletedMails = new HashMap<>(); 
+		 
+		//Info zusammenbauen und returnen		S
+		return Information.ok + info + totalMessageSize + " octets)";
 	}
 	 
 	/**
-	 * TODO: DAT MACHT AUCH DIMA; SCHON HIER ANGFANGEN: Hier noch auf die
-	 * Punkte(. || .. || .) achten Holt die n-te E-Mail vom E-Mail-Server
-	 * 
-	 * @param secondPartCommand
-	 * @return
+	 * Holt die n-te E-Mail vom E-Mail-Server
+	 * @param String SecondPartCommand - Das folgende Wort nach einem Befehl
+	 * @return String
 	 */
 	String retr(String secondPartCommand) {
 		if(authenticationFlag != true) {
-			return err + " invalide command in this state";
+			return Information.err + "invalide command in this state";
 		}
 		if(secondPartCommand.isEmpty()) {
-			return err;
+			return Information.err;
 		}
 		boolean exceptionFlag = true;
-		String result = ok + " ";
+		String result = Information.ok;
 		try {
 			int integer = Integer.parseInt(secondPartCommand);
 			
@@ -187,24 +186,24 @@ class POP3_Server_Commands {
 	 */
 	String noop() {
 		if(authenticationFlag != true) {
-			return err + " invalide command in this state";
+			return Information.err + "invalide command in this state";
 		}
-		return ok;
+		return Information.ok;
 	}
 	  
 
 	/**
 	 * markiert die n-te E-Mail am E-Mail-Server.
-	 * @param secondPartCommand
+	 * @param String secondPartCommand - Das folgende Wort nach einem Befehl
 	 * @return
 	 */
 	String dele(String secondPartCommand) {
 		if(authenticationFlag != true) {
-			return err + " invalide command in this state";
+			return Information.err + "invalide command in this state";
 			
 		}
 		boolean exceptionFlag = true;
-		String result = ok + " message" + secondPartCommand + " deleted";
+		String result = Information.ok + "message" + secondPartCommand + " deleted";
 		
 		try {
 			System.out.println("INHALT VON PARAMETER:" + secondPartCommand);
@@ -212,8 +211,8 @@ class POP3_Server_Commands {
 			for (Map.Entry<File, Integer> pair : emailMap.entrySet()) {
 				if (integer == pair.getValue()) {
 					exceptionFlag = false;
-					emailMap.remove(pair.getKey());
 					deletedMails.put(pair.getKey(), pair.getValue());
+					emailMap.remove(pair.getKey());					//*
 				}
 			}
 
@@ -234,8 +233,9 @@ class POP3_Server_Commands {
 	  */
 	  String list() {
 		  if(authenticationFlag != true) {
-				return err + " invalide command in this state";
+				return Information.err + "invalide command in this state";
 			}
+		  
 		 String result = "\r\n";
 		 String head = "";
 		 String body = "\r\n";
@@ -247,7 +247,7 @@ class POP3_Server_Commands {
 		}
 		
 		//Head zusammenbauen
-		head += ok + " " + emailMap.size() + " messages (" + messageLength + " octets)";
+		head += Information.ok + " " + emailMap.size() + " messages (" + messageLength + " octets)";
 		
 		//Head und Body verbinden und ausgeben
 		return result = head + body + "\n.";
@@ -257,13 +257,13 @@ class POP3_Server_Commands {
 	 /**
 	  * liefert die Anzahl und die Größe der (n-ten) E-Mails.
 	  * @param secondPartCommand - (n-ten) E-Mails
-	  * @return
+	  * @return String
 	  */
 	 String list(String secondPartCommand) {
 			if(authenticationFlag != true) {
-				return err + " invalide command in this state";
+				return Information.err + "invalide command in this state";
 			}
-		String result = ok + " ";		
+		String result = Information.ok;		
 		boolean exceptionFlag = true;
 
 		try {			
@@ -294,9 +294,9 @@ class POP3_Server_Commands {
 	  */
 	  String stat()  {
 			if(authenticationFlag != true) {
-				return err + " invalide command in this state";
+				return Information.err + "invalide command in this state";
 			}
-		 String result = ok + " ";
+		 String result = Information.ok + " ";
 		 int count = 0;
 		 int completeLengh = 0;
 
@@ -306,12 +306,6 @@ class POP3_Server_Commands {
 		}
 		
 		return result += count + " " + completeLengh;
-		
-//		Integer c = new Integer(count);
-//		String emailCount = c.toString();
-//		
-//		result += emailCount += " ";		
-//		return result += completeLengh;
 	}
 	  
 	  /**
@@ -319,7 +313,7 @@ class POP3_Server_Commands {
 	   * @return String
 	   */
 	  String uidl() {
-			String result = ok + "\n";		
+			String result = Information.ok + "\n";		
 			
 			for(Map.Entry<File, Integer> pair : emailMap.entrySet()) {
 				result += pair.getValue() + "\n";
@@ -329,12 +323,13 @@ class POP3_Server_Commands {
 	  
 	  /**
 	   * Liefert die eindeutigen ID's der Mails zurück
+	   * @param String SecondPartCommand - Das folgende Wort nach einem Befehl
 	   */
 	  String uidl(String secondPartCommand) {
 			if(authenticationFlag != true) {
-				return err; //nicht autorisiert
+				return Information.err; //nicht autorisiert
 			}
-			String result = ok + " ";
+			String result = Information.ok + " ";
 			boolean exceptionFlag = true;
 			
 			int integer = Integer.parseInt(secondPartCommand);
@@ -370,15 +365,18 @@ class POP3_Server_Commands {
 			System.out.println("Socket can not be closed!");
 		}
 		authenticationFlag = false;
-		return ok + " dewey POP3 server signing off";
+		return Information.ok + " dewey POP3 server signing off";
 	}
 	
 	  
 	  //******************************* HILFS METHODEN ******************************
-		public Map<File, Integer> getDeletedMails() {
-			return deletedMails;
-		}
+//		public Map<File, Integer> getDeletedMails() {
+//			return deletedMails;
+//		}
 		
+	  /**
+	   * Hier wird der Name der Email zusammen gebaut
+	   */
 		public void aktualisieren() {			
 			for (File i : serverAccountManagement.f.listFiles()) {
 				char[] puffer = i.getName().toCharArray();
@@ -398,11 +396,11 @@ class POP3_Server_Commands {
 		 * Löscht die Mails vom Server, wenn der Quit Befehl eingegeben wird
 		 * @param mail
 		 */
-		void deleteMail(File mail) {
-			for(Map.Entry<File, Integer> pair : emailMap.entrySet()) {
-				if(pair.getKey() == mail) {
-					emailMap.remove(pair);
-				}
-			}
-		}
+//		void deleteMail(File mail) {
+//			for(Map.Entry<File, Integer> pair : emailMap.entrySet()) {
+//				if(pair.getKey() == mail) {
+//					emailMap.remove(pair);
+//				}
+//			}
+//		}
 }

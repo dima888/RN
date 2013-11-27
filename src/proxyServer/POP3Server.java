@@ -90,9 +90,6 @@ class POP3Server {
 		
 		boolean serviceRequested = true; //Server läuft so lange true ist
 		
-		private String ok = "+OK";
-		private String err = "-ERR";
-		
 		//************* KONSTRUKTOR *********************
 		POP3_Server_Thread(Socket socket, Path path) {
 			this.socket = socket;
@@ -167,18 +164,15 @@ class POP3Server {
 				return true;
 			}
 			
-			if (checkAllCommand(clientRequest).compareTo(ok) == 0) {
-				//writeToClient(ok + " Username accepted, password please\r\n");
-				writeToClient(ok + " Username accepted, password please");
+			if (checkAllCommand(clientRequest).compareTo(Information.ok) == 0) {
+				writeToClient(Information.ok + "Username accepted, password please");
 				String clientRequestTwo = readFromClient();
 				
-				if (checkAllCommand(clientRequestTwo).compareTo(ok) == 0) {
-					//writeToClient(ok + " Password accepted\r\n");
-					writeToClient(ok + " Password accepted");
+				if (checkAllCommand(clientRequestTwo).compareTo(Information.ok) == 0) {
+					writeToClient(Information.ok + "Password accepted");
 					return false;
 				}
 			}
-			//writeToClient("authentification failed\r\n");
 			writeToClient("authentification failed");
 			return true;
 		}		
@@ -210,7 +204,7 @@ class POP3Server {
 			 case "noop" : return server_commands.noop(); 
 			 case "rset" : return server_commands.rset();
 			 case "uidl" : if(secondPartCommand.isEmpty()) {return server_commands.uidl();} else {return server_commands.uidl(secondPartCommand);}
-			 default: return server_commands.err + " unknown command";
+			 default: return Information.err + " unknown command";
 			 
 			 }		
 		}

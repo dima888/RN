@@ -68,8 +68,6 @@ class POP3Client extends Thread{
 		this.client = client;
 		this.server_commands = server_commands;
 	}
-	//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	
 	
 	//*******************************SETTER********************************************
 	/*
@@ -79,11 +77,8 @@ class POP3Client extends Thread{
 	public void setServerAccountManagement(ServerAccountManagement serverAccountManagement) {
 		this.serverAccountManagement = serverAccountManagement;		
 	}
-	//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	
 	
 	//*********************** METHODEN *******************************
-	
 	/**
 	 * Programm start
 	 */

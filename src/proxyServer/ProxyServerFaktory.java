@@ -1,8 +1,6 @@
 package proxyServer;
 
-import java.nio.file.Paths;
-
-//TODO: Wenn wir zwei verschiedene user zulassen wollen, dann müssen wir leider zwei serverAccountManagment erzeugen.
+import java.nio.file.Path;
 
 /* IP: lab30.cpt.haw-hamburg.de
  * PORT: 11_000
@@ -15,29 +13,17 @@ import java.nio.file.Paths;
 
 public class ProxyServerFaktory {
 	
-	
-	
-	String username = "foxhound";
-	String username2 = "flah";
-
-
 	private ServerAccountManagement serverAccountManagement = new ServerAccountManagement();
-//	private ServerAccountManagement serverAccountManagement2 = new ServerAccountManagement();
 	
 	private POP3_Server_Commands server_commands = new POP3_Server_Commands();
 	
 	private void starteClient() {
-		POP3Client client = new POP3Client(username, server_commands);
+		POP3Client client = new POP3Client(Information.username, server_commands); //Hier evtl user wechseln
 		client.setServerAccountManagement(serverAccountManagement);
 		client.start();
-		
-//		POP3Client client2 = new POP3Client(username2, server_commands);
-//		client2.setServerAccountManagement(serverAccountManagement2);
-//		client2.start();
 	}
 	
 	private void starteServer() {
-		//POP3Server server = new POP3Server(server_commands);
 		POP3Server server = new POP3Server();
 		server.setServerAccountManagement(serverAccountManagement); //neu
 		server.setPOP3_Server_Commands(server_commands);
@@ -51,22 +37,14 @@ public class ProxyServerFaktory {
 		this.starteServer();		
 	}
 	
-	private void setAccounts() {
-		serverAccountManagement.setAccount(username, "pop.gmx.net", 110, "dima888@gmx.net", "12345678", Information.dimHome);
-		//serverAccountManagement.setAccount(username, "pop.gmx.de", 110, "flah_ahmad@gmx.de", "RN2013Huebner", Information.dimHome); 
+	public void setMailKonto(String username, String mailServerIP, int mailServerPort, String mailAccountName, String mailAccountPassword, Path mailPath) {
+		serverAccountManagement.setAccount(username, mailServerIP, mailServerPort, mailAccountName, mailAccountPassword, mailPath);	
 	}
-	
-//	public void initialize() {
-//		
-//	}
-	
+
 
 	
 	public void startTheProgramm() {
-		// ProxyServer erstellen
-		ProxyServerFaktory proxyServer = new ProxyServerFaktory();
-		proxyServer.setAccounts(); // Account zulassen
-		proxyServer.starteProxyServer();
+		this.starteProxyServer();
 	}
 	
 }
