@@ -1,0 +1,17 @@
+1) Geben sie zwei Anforderungen an ein Transportprotokoll an,
+ die mit UDP nicht realisiert werden können!
+
+ANTWORT: 
+-Reihenfolgeerhaltung
+-Zuverlässige Übertragung(Fehlersicherung)
+
+2) Nennen sie drei Eigenschaften, in dennen die Protokolle HTTP, FTP und SMTP übereinstimmen!
+ANTWORT:
+-Protokoll der Anwendungsschicht
+-Verewenung des Client-/Servermodells
+-Verwendung von TCP als Transportprotokoll
+
+3)
+Erläutern Sie in Stichworten das Verhalten eines „Proxy-Servers“ 
+für das HTTP-Protokoll (ggf. mit Skizze).
+Welche Vorteile bietet der Einsatz eines Proxy-Servers in einem Firmennetzwerk?
